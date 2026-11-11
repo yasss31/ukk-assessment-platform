@@ -57,10 +57,8 @@ def get_ubuntu_2404_ami(ec2_client, ssm_client) -> str:
         return "ami-08b275ac6cc5dbefb"  # Fixed verified noble ami
 
 
-def generate_user_data(tunnel_token: Optional[str] = None) -> str:
-    """Menghasilkan user-data bootstrap script untuk Ubuntu 24.04."""
-    token_val = tunnel_token.strip() if tunnel_token else ""
-    
+def generate_user_data() -> str:
+    """Menghasilkan user-data bootstrap script untuk Ubuntu 24.04 tanpa secret token."""
     script = f"""#!/bin/bash
 set -e
 export DEBIAN_FRONTEND=noninteractive
@@ -101,7 +99,7 @@ echo "=== [4/5] KONFIGURASI ENVIRONMENT SECRETS ==="
 mkdir -p /opt/ukk-assessment-platform/backend/local_storage
 chown -R ubuntu:ubuntu /opt/ukk-assessment-platform/backend/local_storage
 
-# Tulis file .env di root
+# Tulis file .env di root dengan token kosong (diisi terpisah oleh admin)
 cat << 'EOF' > /opt/ukk-assessment-platform/.env
 APP_NAME=UKK Assessment Platform
 HOST=0.0.0.0
@@ -112,7 +110,7 @@ SUPER_ADMIN_USERNAME=admin
 SUPER_ADMIN_PASSWORD=adminukk2026
 GOOGLE_SPREADSHEET_ID=1Ri7F8T7YTQdr7F71aslfVpIfYrSva_F0dmtbT5tBJW8
 CORS_ORIGINS=*
-CLOUDFLARE_TUNNEL_TOKEN={token_val}
+CLOUDFLARE_TUNNEL_TOKEN=
 EOF
 
 chown ubuntu:ubuntu /opt/ukk-assessment-platform/.env
@@ -172,7 +170,8 @@ def ensure_security_group(ec2_client, vpc_id: str, dry_run: bool = False) -> str
     )
     sg_id = resp["GroupId"]
 
-    # Rule Inbound: SSH (22), HTTP (80), Backend API (8000)
+    # Rule Inbound: SSH (22) dan HTTP (80)
+    # Port 8000 TIDAK dibuka ke publik (least privilege: hanya internal docker/tunnel)
     ec2_client.authorize_security_group_ingress(
         GroupId=sg_id,
         IpPermissions=[
@@ -183,10 +182,6 @@ def ensure_security_group(ec2_client, vpc_id: str, dry_run: bool = False) -> str
             {
                 "IpProtocol": "tcp", "FromPort": 80, "ToPort": 80,
                 "IpRanges": [{"CidrIp": "0.0.0.0/0", "Description": "HTTP Frontend Direct"}]
-            },
-            {
-                "IpProtocol": "tcp", "FromPort": 8000, "ToPort": 8000,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0", "Description": "FastAPI Backend Direct"}]
             }
         ]
     )
@@ -211,7 +206,6 @@ def main():
     parser = argparse.ArgumentParser(description="AWS EC2 Hosting Deployment Script")
     parser.add_argument("--plan", action="store_true", help="Tampilkan rencana deployment tanpa membuat resource")
     parser.add_argument("--apply", action="store_true", help="Eksekusi pembuatan/pembaruan EC2 instance di AWS")
-    parser.add_argument("--token", default=None, help="Cloudflare Tunnel Token (opsional, disuntikkan ke user-data)")
     args = parser.parse_args()
 
     if not args.plan and not args.apply:
@@ -288,7 +282,7 @@ def main():
     sg_id = ensure_security_group(ec2, vpc_id, dry_run=False)
     print(f"  [OK] Security Group siap: {sg_id}")
 
-    user_data_script = generate_user_data(tunnel_token=args.token)
+    user_data_script = generate_user_data()
 
     try:
         run_args = {

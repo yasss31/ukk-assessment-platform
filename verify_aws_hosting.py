@@ -113,17 +113,17 @@ def main():
         print(f"   [WAIT] Frontend Web: {fe_res['status']} ({fe_res.get('error')})")
         print("          (Jika EC2 baru di-launch, tunggu 1-2 menit hingga docker compose selesai build)")
 
-    # Backend Health Check
-    be_url = f"http://{pub_ip}:8000/health"
+    # Backend Health Check via Nginx Reverse Proxy (Port 80)
+    be_url = f"http://{pub_ip}/health"
     be_res = check_http_endpoint(be_url)
     if be_res["status"] == "OK":
         data = be_res.get("data", {})
         sheets_info = data.get("google_sheets", {})
-        print(f"   [PASS] Backend API: HTTP {be_res['code']} (FastAPI Healthy)")
+        print(f"   [PASS] Backend API (via Nginx /health): HTTP {be_res['code']} (FastAPI Healthy)")
         print(f"          - Mode Storage  : {data.get('storage_mode')}")
         print(f"          - Google Sheets : {sheets_info.get('status')}")
     else:
-        print(f"   [WAIT] Backend API: {be_res['status']} ({be_res.get('error')})")
+        print(f"   [WAIT] Backend API (via Nginx /health): {be_res['status']} ({be_res.get('error')})")
 
     # 3. Domain Check jika disediakan
     if args.domain:

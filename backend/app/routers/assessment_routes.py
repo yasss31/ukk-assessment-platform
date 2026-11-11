@@ -249,8 +249,11 @@ async def export_report(assessment_id: str, format_type: str, current_user: User
     elif fmt == "csv":
         content = ReportExporter.to_csv(session_data)
         return Response(content=content, media_type="text/csv", headers={"Content-Disposition": f"attachment; filename=penilaian_{assessment_id}.csv"})
+    elif fmt == "txt":
+        content = ReportExporter.to_txt(session_data)
+        return Response(content=content, media_type="text/plain; charset=utf-8", headers={"Content-Disposition": f"attachment; filename=penilaian_{assessment_id}.txt"})
     elif fmt in ["html", "pdf"]:
         content = ReportExporter.to_html(session_data)
         return Response(content=content, media_type="text/html")
     else:
-        raise HTTPException(status_code=400, detail="Format tidak didukung (gunakan 'json', 'csv', atau 'html')")
+        raise HTTPException(status_code=400, detail="Format tidak didukung (gunakan 'json', 'csv', 'txt', atau 'html')")

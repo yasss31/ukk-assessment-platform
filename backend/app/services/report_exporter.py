@@ -35,6 +35,32 @@ class ReportExporter:
         return output.getvalue()
 
     @staticmethod
+    def to_txt(session_data: Dict[str, Any]) -> str:
+        part = session_data.get("participant", {})
+        results = session_data.get("results", [])
+        lines = []
+        lines.append("=============================================================================")
+        lines.append("                 LAPORAN HASIL PENILAIAN UKK CLOUD ENGINEER                  ")
+        lines.append("=============================================================================")
+        lines.append(f"Peserta        : {part.get('name')} ({part.get('participant_number')})")
+        lines.append(f"Kelas/Sekolah  : {part.get('student_class')} - {part.get('school')}")
+        lines.append(f"Rubrik Profil  : {session_data.get('rubric_name')} (v{session_data.get('rubric_version')})")
+        lines.append(f"Waktu Evaluasi : {session_data.get('created_at')}")
+        lines.append(f"Penguji        : {session_data.get('examiner_name')}")
+        lines.append(f"Total Skor     : {session_data.get('total_score')} / {session_data.get('max_score')} ({session_data.get('score_percentage')}%)")
+        lines.append(f"Ringkasan      : PASS={session_data.get('pass_count')}, FAIL={session_data.get('fail_count')}, SKIP={session_data.get('skip_count')}")
+        lines.append("-----------------------------------------------------------------------------")
+        for r in results:
+            st = r.get("status")
+            lines.append(f"[{st:4s}] {r.get('code')} - {r.get('name')} (Skor: {r.get('score')}/{r.get('weight')})")
+            if r.get('actual'):
+                lines.append(f"       Bukti: {r.get('actual')}")
+            if r.get('error_message'):
+                lines.append(f"       Catatan/Error: {r.get('error_message')}")
+        lines.append("=============================================================================")
+        return "\n".join(lines)
+
+    @staticmethod
     def to_html(session_data: Dict[str, Any]) -> str:
         part = session_data.get("participant", {})
         results = session_data.get("results", [])

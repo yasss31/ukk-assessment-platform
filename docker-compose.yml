@@ -81,8 +81,7 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: ukk-assessment-tunnel
     restart: unless-stopped
+    network_mode: host
     command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN:-}
     environment:
       - CLOUDFLARE_TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN:-}
-    depends_on:
-      - frontend

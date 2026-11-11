@@ -173,9 +173,30 @@ export const Settings: React.FC = () => {
             <label className="block text-xs font-semibold text-slate-300 mb-1">
               Konfigurasi Kredensial Service Account Google Cloud (JSON)
             </label>
-            <p className="text-[11px] text-slate-500 mb-2">
-              Paste isi file <code className="bg-slate-800 px-1 py-0.5 rounded text-slate-300">service_account.json</code> dari Google Cloud Console. Pastikan email service account sudah diundang sebagai <strong>Editor</strong> pada Google Spreadsheet di atas.
-            </p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[11px] text-slate-500">
+                Upload atau paste isi file <code className="bg-slate-800 px-1 py-0.5 rounded text-slate-300">service_account.json</code> dari Google Cloud Console. Pastikan email service account sudah diundang sebagai <strong>Editor</strong> pada Google Spreadsheet.
+              </p>
+              <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-slate-700 text-[11px] font-semibold px-3 py-1.5 rounded-lg transition whitespace-nowrap ml-2">
+                📁 Upload File JSON
+                <input
+                  type="file"
+                  accept=".json,application/json"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        const content = event.target?.result as string;
+                        setJsonInput(content);
+                      };
+                      reader.readAsText(file);
+                    }
+                  }}
+                />
+              </label>
+            </div>
             <textarea
               rows={4}
               value={jsonInput}

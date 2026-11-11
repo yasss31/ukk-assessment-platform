@@ -51,6 +51,7 @@ def main():
     print(f"[INFO] Branch Target  : {args.branch}")
 
     commands = [
+        "git config --global --add safe.directory /opt/ukk-assessment-platform",
         "cd /opt/ukk-assessment-platform",
         f"git fetch origin && git checkout {args.branch} && git pull origin {args.branch}",
         "docker compose up -d --build",

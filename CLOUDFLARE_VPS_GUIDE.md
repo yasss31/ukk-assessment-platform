@@ -24,8 +24,9 @@ Jika Anda sudah memiliki Cloudflare Tunnel Token, Anda cukup memasukkannya ke fi
    ```
 2. Isi nilai `CLOUDFLARE_TUNNEL_TOKEN`:
    ```env
-   CLOUDFLARE_TUNNEL_TOKEN=eyJhIjoiNDFjMGQ0YjYyOGUzYzQwMWJlNjJlYTUxODFhNzU4MzQiLCJ0IjoiN2NkMTZmZGEtYWRjMi00ZmI3LTlmZjAtOTYwMjMxNzQ2Yzk2IiwicyI6Ik5XSXlZelpsWVRJdE1EWXhPQzAwT1dGaExUazNaRFl0Wm1FeU0yWmxPV0U1TXpCbSJ9
+   CLOUDFLARE_TUNNEL_TOKEN=<MASUKKAN_TOKEN_CLOUDFLARE_TUNNEL_ANDA>
    ```
+
 3. Jalankan container:
    ```bash
    docker compose up -d --build
@@ -50,8 +51,9 @@ sudo dpkg -i cloudflared.deb
 ### Langkah 2: Daftarkan Service Menggunakan Token Anda
 Jalankan perintah instalasi service dengan token Anda:
 ```bash
-sudo cloudflared service install eyJhIjoiNDFjMGQ0YjYyOGUzYzQwMWJlNjJlYTUxODFhNzU4MzQiLCJ0IjoiN2NkMTZmZGEtYWRjMi00ZmI3LTlmZjAtOTYwMjMxNzQ2Yzk2IiwicyI6Ik5XSXlZelpsWVRJdE1EWXhPQzAwT1dGaExUazNaRFl0Wm1FeU0yWmxPV0U1TXpCbSJ9
+sudo cloudflared service install <TOKEN_CLOUDFLARE_TUNNEL_ANDA>
 ```
+
 
 ### Langkah 3: Aktifkan Service
 ```bash

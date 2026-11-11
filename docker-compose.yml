@@ -44,6 +44,11 @@ services:
     volumes:
       - ./backend/local_storage:/app/local_storage
       - ./backend/service_account.json:/app/service_account.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'python worker.py' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     depends_on:
       - backend
 
@@ -58,6 +63,11 @@ services:
       - APP_NAME=UKK Auto Play Scheduler
     volumes:
       - ./backend/local_storage:/app/local_storage
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'python scheduler.py' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     depends_on:
       - backend
 

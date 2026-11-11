@@ -5,6 +5,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
     container_name: ukk-assessment-backend
     restart: unless-stopped
     ports:
@@ -29,6 +30,37 @@ services:
       timeout: 10s
       retries: 3
 
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: python worker.py
+    container_name: ukk-assessment-worker
+    restart: unless-stopped
+    environment:
+      - APP_NAME=UKK Assessment Platform Worker
+      - GOOGLE_SPREADSHEET_ID=${GOOGLE_SPREADSHEET_ID:-1Ri7F8T7YTQdr7F71aslfVpIfYrSva_F0dmtbT5tBJW8}
+      - GOOGLE_SERVICE_ACCOUNT_JSON=/app/service_account.json
+    volumes:
+      - ./backend/local_storage:/app/local_storage
+      - ./backend/service_account.json:/app/service_account.json:ro
+    depends_on:
+      - backend
+
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: python scheduler.py
+    container_name: ukk-assessment-scheduler
+    restart: unless-stopped
+    environment:
+      - APP_NAME=UKK Auto Play Scheduler
+    volumes:
+      - ./backend/local_storage:/app/local_storage
+    depends_on:
+      - backend
+
   frontend:
     build:
       context: ./frontend
@@ -39,6 +71,11 @@ services:
       - "80:80"
     depends_on:
       - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   cloudflared:
     image: cloudflare/cloudflared:latest

@@ -32,3 +32,4 @@ def test_troubleshooting_fallback_unknown_code():
     assert guide.severity == ErrorSeverity.MAJOR
     assert "CUSTOM.99" in guide.what_is_wrong
     assert guide.actual_found == "Actual Value"
+

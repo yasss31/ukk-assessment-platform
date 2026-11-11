@@ -31,11 +31,11 @@ export const Reports: React.FC = () => {
 
   // Breakdown per kelas
   const classBreakdown = completed.reduce((acc, a) => {
-    const cls = a.participant.student_class || 'Umum';
+    const cls = a?.participant?.student_class || 'Umum';
     if (!acc[cls]) acc[cls] = { total: 0, passed: 0, scores: [] };
     acc[cls].total += 1;
-    if (a.total_score >= 75) acc[cls].passed += 1;
-    acc[cls].scores.push(a.total_score);
+    if ((a?.total_score ?? 0) >= 75) acc[cls].passed += 1;
+    acc[cls].scores.push(a?.total_score ?? 0);
     return acc;
   }, {} as Record<string, { total: number; passed: number; scores: number[] }>);
 

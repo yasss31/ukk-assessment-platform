@@ -31,11 +31,16 @@ export const Assessments: React.FC<Props> = ({ onNavigate }) => {
 
   const filtered = assessments.filter(a => {
     const matchStatus = statusFilter === 'ALL' || a.status === statusFilter;
+    const pName = a?.participant?.name || '';
+    const pNum = a?.participant?.participant_number || '';
+    const pClass = a?.participant?.student_class || '';
+    const rName = a?.rubric_name || '';
+    const q = search.toLowerCase();
     const matchSearch =
-      a.participant.name.toLowerCase().includes(search.toLowerCase()) ||
-      a.participant.participant_number.toLowerCase().includes(search.toLowerCase()) ||
-      a.participant.student_class.toLowerCase().includes(search.toLowerCase()) ||
-      a.rubric_name.toLowerCase().includes(search.toLowerCase());
+      pName.toLowerCase().includes(q) ||
+      pNum.toLowerCase().includes(q) ||
+      pClass.toLowerCase().includes(q) ||
+      rName.toLowerCase().includes(q);
     return matchStatus && matchSearch;
   });
 
@@ -120,31 +125,31 @@ export const Assessments: React.FC<Props> = ({ onNavigate }) => {
                 {filtered.map(a => (
                   <tr key={a.id} className="hover:bg-slate-800/30 transition-colors">
                     <td className="py-3.5 px-4">
-                      <div className="font-semibold text-white">{a.participant.name}</div>
+                      <div className="font-semibold text-white">{a?.participant?.name || 'Peserta'}</div>
                       <div className="text-[11px] text-slate-400 font-mono">
-                        {a.participant.participant_number} • {a.participant.student_class}
+                        {a?.participant?.participant_number || '-'} • {a?.participant?.student_class || '-'}
                       </div>
                     </td>
                     <td className="py-3.5 px-4 text-slate-300">
-                      <div>{a.rubric_name}</div>
-                      <div className="text-[10px] text-slate-500">v{a.rubric_version}</div>
+                      <div>{a?.rubric_name || 'Rubrik MBG'}</div>
+                      <div className="text-[10px] text-slate-500">v{a?.rubric_version || '1.0'}</div>
                     </td>
                     <td className="py-3.5 px-4">
                       <span className="text-sm font-bold text-white">
-                        {a.total_score.toFixed(1)}
+                        {(a?.total_score ?? 0).toFixed(1)}
                       </span>
-                      <span className="text-slate-500 text-[10px]"> / {a.max_score}</span>
+                      <span className="text-slate-500 text-[10px]"> / {a?.max_score ?? 100}</span>
                     </td>
                     <td className="py-3.5 px-4">
-                      <StatusBadge status={a.status} size="sm" />
+                      <StatusBadge status={a?.status || 'PENDING'} size="sm" />
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="text-emerald-400 font-semibold">{a.pass_count}</span>
+                      <span className="text-emerald-400 font-semibold">{a?.pass_count || 0}</span>
                       <span className="text-slate-500"> / </span>
-                      <span className="text-rose-400 font-semibold">{a.fail_count}</span>
+                      <span className="text-rose-400 font-semibold">{a?.fail_count || 0}</span>
                     </td>
                     <td className="py-3.5 px-4 text-slate-400 text-[11px]">
-                      {new Date(a.started_at).toLocaleString('id-ID')}
+                      {a?.started_at ? new Date(a.started_at).toLocaleString('id-ID') : '-'}
                     </td>
                     <td className="py-3.5 px-4 text-right space-x-2">
                       <a

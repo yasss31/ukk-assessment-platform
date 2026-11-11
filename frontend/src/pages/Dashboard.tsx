@@ -80,16 +80,16 @@ export const Dashboard: React.FC<Props> = ({ onNavigate }) => {
         {/* Google Sheets Status */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className={`p-2.5 rounded-xl ${stats?.google_sheets.is_connected ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
+            <div className={`p-2.5 rounded-xl ${stats?.google_sheets?.is_connected ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
               <Database size={20} />
             </div>
             <div>
               <div className="text-xs font-semibold text-white flex items-center gap-2">
                 Google Sheets Sync
-                <StatusBadge status={stats?.google_sheets.is_connected ? 'CONNECTED' : 'LOCAL_STORAGE'} size="sm" />
+                <StatusBadge status={stats?.google_sheets?.is_connected ? 'CONNECTED' : 'LOCAL_STORAGE'} size="sm" />
               </div>
               <div className="text-[11px] text-slate-400 mt-0.5 font-mono truncate max-w-xs">
-                Spreadsheet: {stats?.google_sheets.spreadsheet_id || 'Belum dihubungkan'}
+                Spreadsheet: {stats?.google_sheets?.spreadsheet_id || 'Belum dihubungkan'}
               </div>
             </div>
           </div>
@@ -104,16 +104,16 @@ export const Dashboard: React.FC<Props> = ({ onNavigate }) => {
         {/* AWS Auto Play Status */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className={`p-2.5 rounded-xl ${stats?.auto_play.is_enabled ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-700/30 text-slate-400 border border-slate-700'}`}>
+            <div className={`p-2.5 rounded-xl ${stats?.auto_play?.is_enabled ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-700/30 text-slate-400 border border-slate-700'}`}>
               <Timer size={20} />
             </div>
             <div>
               <div className="text-xs font-semibold text-white flex items-center gap-2">
                 AWS Auto Play Manager
-                <StatusBadge status={stats?.auto_play.is_enabled ? 'ACTIVE' : 'DISABLED'} size="sm" />
+                <StatusBadge status={stats?.auto_play?.is_enabled ? 'ACTIVE' : 'DISABLED'} size="sm" />
               </div>
               <div className="text-[11px] text-slate-400 mt-0.5">
-                Interval: {stats?.auto_play.interval_minutes} menit • Status: {stats?.auto_play.last_status}
+                Interval: {stats?.auto_play?.interval_minutes || 180} menit • Status: {stats?.auto_play?.last_status || 'DISABLED'}
               </div>
             </div>
           </div>
@@ -205,18 +205,18 @@ export const Dashboard: React.FC<Props> = ({ onNavigate }) => {
                 {stats.recent_assessments.map((a) => (
                   <tr key={a.id} className="hover:bg-slate-800/30 transition-colors">
                     <td className="py-3 px-3">
-                      <div className="font-semibold text-white">{a.participant.name}</div>
-                      <div className="text-[11px] text-slate-400">{a.participant.participant_number} • {a.participant.student_class}</div>
+                      <div className="font-semibold text-white">{a?.participant?.name || 'Peserta'}</div>
+                      <div className="text-[11px] text-slate-400">{a?.participant?.participant_number || '-'} • {a?.participant?.student_class || '-'}</div>
                     </td>
-                    <td className="py-3 px-3 text-slate-300">{a.rubric_name}</td>
+                    <td className="py-3 px-3 text-slate-300">{a?.rubric_name || 'Rubrik MBG'}</td>
                     <td className="py-3 px-3 font-bold text-white">
-                      {a.total_score.toFixed(1)} / {a.max_score}
+                      {(a?.total_score ?? 0).toFixed(1)} / {a?.max_score ?? 100}
                     </td>
                     <td className="py-3 px-3">
-                      <StatusBadge status={a.status} size="sm" />
+                      <StatusBadge status={a?.status || 'PENDING'} size="sm" />
                     </td>
                     <td className="py-3 px-3 text-slate-400 text-[11px]">
-                      {new Date(a.started_at).toLocaleString('id-ID')}
+                      {a?.started_at ? new Date(a.started_at).toLocaleString('id-ID') : '-'}
                     </td>
                     <td className="py-3 px-3 text-right">
                       <button

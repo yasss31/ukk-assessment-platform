@@ -141,12 +141,12 @@ export const AssessmentDetail: React.FC<Props> = ({ sessionId, onBack }) => {
           <div>
             <div className="flex items-center space-x-2">
               <h2 className="text-lg font-bold text-white tracking-tight">
-                {session.participant.name} ({session.participant.participant_number})
+                {session?.participant?.name || 'Peserta'} ({session?.participant?.participant_number || '-'})
               </h2>
               <StatusBadge status={session.status} size="sm" />
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              {session.participant.student_class} • {session.participant.school} • Rubrik: {session.rubric_name}
+              {session?.participant?.student_class || '-'} • {session?.participant?.school || '-'} • Rubrik: {session.rubric_name}
             </p>
           </div>
         </div>

@@ -45,10 +45,10 @@ class GoogleSheetsService:
                 info = json.loads(json_str)
                 creds = service_account.Credentials.from_service_account_info(info, scopes=scopes)
             # Prioritas 2: Path file JSON
-            elif self.credentials_json_path and os.path.exists(self.credentials_json_path):
+            elif self.credentials_json_path and os.path.isfile(self.credentials_json_path):
                 creds = service_account.Credentials.from_service_account_file(self.credentials_json_path, scopes=scopes)
             # Prioritas 3: Cek file service_account.json di direktori kerja
-            elif os.path.exists("service_account.json"):
+            elif os.path.isfile("service_account.json"):
                 creds = service_account.Credentials.from_service_account_file("service_account.json", scopes=scopes)
             else:
                 self.last_error = "Kredensial Service Account Google Sheets belum dikonfigurasi (NEEDS_CONFIGURATION)"

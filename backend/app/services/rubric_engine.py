@@ -56,3 +56,4 @@ class RubricEngine:
             final_score = 0.0
 
         return final_score, pass_count, fail_count, skip_count, error_count, warning_count
+

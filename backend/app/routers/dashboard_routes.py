@@ -55,3 +55,4 @@ async def get_health_status():
         auto_play_status="ENABLED" if autoplay.get("is_enabled") else "DISABLED",
         timestamp=datetime.utcnow().isoformat()
     )
+

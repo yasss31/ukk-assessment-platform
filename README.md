@@ -125,3 +125,4 @@ Aplikasi langsung berjalan di port 80 VPS.
 
 ## 📄 Lisensi
 Hak Cipta © 2026 SMK Negeri 1 Banyumas. Dikembangkan untuk Uji Kompetensi Keahlian (UKK) Teknik Komputer dan Jaringan / Cloud Computing.
+

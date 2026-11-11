@@ -50,3 +50,4 @@ def get_auto_play_logs(limit: int = 50, current_user: User = Depends(require_exa
     """Mengambil riwayat log aktivitas Auto Play."""
     logs = storage.get_autoplay_logs(limit=limit)
     return {"logs": logs, "total": len(logs)}
+

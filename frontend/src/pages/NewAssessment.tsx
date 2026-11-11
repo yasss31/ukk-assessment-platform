@@ -387,3 +387,4 @@ export const NewAssessment: React.FC<Props> = ({ onNavigate }) => {
     </div>
   );
 };
+

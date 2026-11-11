@@ -24,3 +24,4 @@ def test_autoplay_logs():
     assert len(logs) > 0
     # Cek log terakhir ada action
     assert "action" in logs[0]
+

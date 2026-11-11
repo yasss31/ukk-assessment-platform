@@ -55,3 +55,4 @@ def delete_participant(participant_id: str, current_user: User = Depends(require
     if not success:
         raise HTTPException(status_code=404, detail="Peserta tidak ditemukan")
     return {"message": "Peserta berhasil dihapus"}
+

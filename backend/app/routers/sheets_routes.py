@@ -89,3 +89,4 @@ def sync_data_to_sheets(current_user: User = Depends(require_examiner)):
     storage.sheets.ensure_sheet_exists("Penilaian", ["ID Penilaian", "Nomor Peserta", "Nama Siswa", "Profil Rubrik", "Skor Total", "Maksimal", "Persentase", "Status", "Total PASS", "Total FAIL", "Waktu"])
     
     return {"success": True, "message": "Sinkronisasi ke Google Sheets berhasil dipicu."}
+

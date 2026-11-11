@@ -7,7 +7,11 @@ import urllib.request
 from typing import List, Dict, Any, Optional
 import boto3
 from botocore.exceptions import ClientError
-from app.models.schemas import AWSCredentialInput, IndicatorResult, IndicatorStatus, RubricProfile
+from app.models.schemas import (
+    AWSCredentialInput, IndicatorResult, IndicatorStatus, RubricProfile, ErrorSeverity
+)
+from app.services.troubleshooting_kb import TroubleshootingKB
+
 
 
 class AWSAssessmentEngine:
@@ -449,10 +453,14 @@ class AWSAssessmentEngine:
             status=IndicatorStatus.PASS,
             score=ind.weight,
             weight=ind.weight,
-            evidence=evidence
+            evidence=evidence,
+            severity=None,
+            troubleshooting=None,
+            is_resolved=True
         )
 
     def _fail(self, ind, reason: str) -> IndicatorResult:
+        guide = TroubleshootingKB.get_guide(ind.code, ind.expected_value, reason, reason)
         return IndicatorResult(
             indicator_id=ind.id,
             code=ind.code,
@@ -464,10 +472,14 @@ class AWSAssessmentEngine:
             score=0.0,
             weight=ind.weight,
             evidence=reason,
-            error_message=reason
+            error_message=reason,
+            severity=guide.severity,
+            troubleshooting=guide,
+            is_resolved=False
         )
 
     def _warning(self, ind, note: str) -> IndicatorResult:
+        guide = TroubleshootingKB.get_guide(ind.code, ind.expected_value, note, note)
         return IndicatorResult(
             indicator_id=ind.id,
             code=ind.code,
@@ -478,10 +490,14 @@ class AWSAssessmentEngine:
             status=IndicatorStatus.WARNING,
             score=ind.weight * 0.5,
             weight=ind.weight,
-            evidence=note
+            evidence=note,
+            severity=ErrorSeverity.MINOR,
+            troubleshooting=guide,
+            is_resolved=False
         )
 
     def _error(self, ind, err: str) -> IndicatorResult:
+        guide = TroubleshootingKB.get_guide(ind.code, ind.expected_value, f"Error: {err}", err)
         return IndicatorResult(
             indicator_id=ind.id,
             code=ind.code,
@@ -493,5 +509,53 @@ class AWSAssessmentEngine:
             score=0.0,
             weight=ind.weight,
             evidence=err,
-            error_message=err
+            error_message=err,
+            severity=ErrorSeverity.CRITICAL,
+            troubleshooting=guide,
+            is_resolved=False
         )
+
+    def reassess_indicators(self, target_indicator_ids: Optional[List[str]], existing_results: List[IndicatorResult]) -> List[IndicatorResult]:
+        """
+        Melakukan evaluasi ulang (Reassessment) hanya pada indikator yang dipilih/gagal,
+        sambil mempertahankan jejak riwayat pemeriksaan sebelumnya secara transparan.
+        """
+        self._discover_resources()
+        results_map = {r.indicator_id: r for r in existing_results}
+        target_ids_set = set(target_indicator_ids) if target_indicator_ids else None
+
+        for ind in self.profile.indicators:
+            # Jika target_indicator_ids dispesifikasikan, periksa hanya yang ditargetkan
+            if target_ids_set and ind.id not in target_ids_set:
+                continue
+
+            # Jika tidak dispesifikasikan, default periksa yang statusnya bukan PASS
+            prev = results_map.get(ind.id)
+            if not target_ids_set and prev and prev.status == IndicatorStatus.PASS:
+                continue
+
+            # Jalankan evaluasi ulang
+            new_res = self._evaluate_indicator(ind)
+
+            if prev:
+                # Rekam ke riwayat percobaan
+                history_entry = {
+                    "previous_status": prev.status.value,
+                    "previous_score": prev.score,
+                    "previous_actual": prev.actual,
+                    "evaluated_at": prev.timestamp
+                }
+                new_res.reassessment_history = getattr(prev, "reassessment_history", []) + [history_entry]
+                if new_res.status == IndicatorStatus.PASS:
+                    new_res.is_resolved = True
+
+            results_map[ind.id] = new_res
+
+        # Kembalikan list berurutan sesuai urutan indikator profil rubrik
+        ordered_results = []
+        for ind in self.profile.indicators:
+            if ind.id in results_map:
+                ordered_results.append(results_map[ind.id])
+        return ordered_results
+
+

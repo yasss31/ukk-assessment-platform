@@ -31,3 +31,4 @@ Platform ini mengimplementasikan langkah-langkah keamanan ketat untuk menjamin i
 - Modul penilaian (`assessment_engine.py`) secara eksklusif hanya memanggil operasi **Read-Only / Describe / Get** pada API AWS SDK (seperti `describe_vpcs`, `describe_subnets`, `describe_instances`, `get_caller_identity`).
 - Sistem tidak pernah mengubah, menghapus, atau membuat resource di akun AWS peserta selama sesi penilaian.
 - Pada fitur AWS Auto Play, pemanggilan `start_instances` dibatasi secara ketat hanya untuk instance EC2 berstatus `stopped` dengan protokol idempotensi.
+

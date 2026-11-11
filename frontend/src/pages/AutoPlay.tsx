@@ -318,3 +318,4 @@ export const AutoPlay: React.FC = () => {
     </div>
   );
 };
+

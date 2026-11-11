@@ -19,7 +19,7 @@ services:
       - SUPER_ADMIN_PASSWORD=${SUPER_ADMIN_PASSWORD:-adminukk2026}
       - GOOGLE_SPREADSHEET_ID=${GOOGLE_SPREADSHEET_ID:-1Ri7F8T7YTQdr7F71aslfVpIfYrSva_F0dmtbT5tBJW8}
       - GOOGLE_SERVICE_ACCOUNT_JSON=/app/service_account.json
-      - CORS_ORIGINS=http://localhost,http://localhost:80,http://localhost:5173,http://localhost:3000
+      - CORS_ORIGINS=http://localhost,http://localhost:80,http://localhost:5173,http://localhost:3000,*
     volumes:
       - ./backend/local_storage:/app/local_storage
       - ./backend/service_account.json:/app/service_account.json:ro
@@ -40,6 +40,12 @@ services:
     depends_on:
       - backend
 
-# Optional Cloudflared Tunnel for custom domain
-# Run on VPS:
-# cloudflared tunnel run <TUNNEL_NAME>
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: ukk-assessment-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    environment:
+      - CLOUDFLARE_TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN:-}
+    depends_on:
+      - frontend

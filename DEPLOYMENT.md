@@ -47,3 +47,4 @@ npm install
 npm run build
 npm run preview -- --port 80 --host
 ```
+

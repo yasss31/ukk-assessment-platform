@@ -1,5 +1,20 @@
 // types.ts - Definisi Tipe Frontend UKK Assessment Platform
 
+export type ErrorSeverity = 'Critical' | 'Major' | 'Minor' | 'Informational';
+
+export interface TroubleshootingGuide {
+  severity: ErrorSeverity;
+  what_is_wrong: string;
+  actual_found: string;
+  expected_config: string;
+  why_wrong: string;
+  impact: string;
+  fix_location: string;
+  how_to_fix: string[];
+  how_to_verify: string[];
+  cli_guide?: string;
+}
+
 export interface User {
   id: string;
   username: string;
@@ -7,6 +22,7 @@ export interface User {
   role: 'super_admin' | 'examiner';
   email?: string;
   is_active: boolean;
+  must_change_password?: boolean;
   created_at: string;
 }
 
@@ -61,6 +77,15 @@ export interface IndicatorResult {
   weight: number;
   evidence: string;
   error_message?: string;
+  severity?: ErrorSeverity;
+  troubleshooting?: TroubleshootingGuide;
+  is_resolved?: boolean;
+  reassessment_history?: Array<{
+    previous_status: string;
+    previous_score: number;
+    previous_actual: string;
+    evaluated_at: string;
+  }>;
   timestamp?: string;
 }
 

@@ -1,6 +1,7 @@
-import React from 'react';
-import { Cloud, LogOut, User as UserIcon, ShieldCheck } from 'lucide-react';
-import { User } from '../types';
+import React, { useState } from 'react';
+import { Cloud, LogOut, User as UserIcon, ShieldCheck, Key, CheckCircle2, AlertCircle } from 'lucide-react';
+import type { User } from '../types';
+import { api } from '../api';
 
 interface Props {
   user: User | null;
@@ -8,6 +9,29 @@ interface Props {
 }
 
 export const Navbar: React.FC<Props> = ({ user, onLogout }) => {
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [pwdMsg, setPwdMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingPassword(true);
+    setPwdMsg(null);
+    try {
+      await api.changePassword(currentPassword, newPassword);
+      setPwdMsg({ type: 'success', text: 'Kata sandi berhasil diperbarui!' });
+      setCurrentPassword('');
+      setNewPassword('');
+      setTimeout(() => setShowPasswordModal(false), 1500);
+    } catch (err: any) {
+      setPwdMsg({ type: 'error', text: err.message || 'Gagal mengubah kata sandi' });
+    } finally {
+      setSavingPassword(false);
+    }
+  };
+
   return (
     <header className="h-16 border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40 px-6 flex items-center justify-between">
       <div className="flex items-center space-x-3">
@@ -36,15 +60,89 @@ export const Navbar: React.FC<Props> = ({ user, onLogout }) => {
               <div className="text-[10px] text-slate-400 capitalize">{user.role.replace('_', ' ')}</div>
             </div>
             <button
+              onClick={() => setShowPasswordModal(true)}
+              title="Ganti Kata Sandi"
+              className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors ml-1"
+            >
+              <Key size={15} />
+            </button>
+            <button
               onClick={onLogout}
               title="Keluar"
-              className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors ml-2"
+              className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
             >
               <LogOut size={16} />
             </button>
           </div>
         )}
       </div>
+
+      {/* Change Password Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <Key size={16} className="text-indigo-400" />
+              Ganti Kata Sandi Penguji
+            </h3>
+            <p className="text-xs text-slate-400">
+              Ubah kata sandi akun default untuk meningkatkan keamanan portal penilaian.
+            </p>
+
+            {pwdMsg && (
+              <div className={`p-3 rounded-xl border text-xs flex items-center space-x-2 ${
+                pwdMsg.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' : 'bg-rose-500/10 border-rose-500/20 text-rose-300'
+              }`}>
+                {pwdMsg.type === 'success' ? <CheckCircle2 size={15} /> : <AlertCircle size={15} />}
+                <span>{pwdMsg.text}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleChangePassword} className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-400 mb-1">Kata Sandi Saat Ini</label>
+                <input
+                  type="password"
+                  required
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="adminukk2026"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-400 mb-1">Kata Sandi Baru (Min. 6 Karakter)</label>
+                <input
+                  type="password"
+                  required
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordModal(false)}
+                  className="px-3.5 py-1.5 bg-slate-800 text-slate-300 rounded-xl text-xs hover:bg-slate-700"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingPassword}
+                  className="px-3.5 py-1.5 bg-indigo-600 text-white font-semibold rounded-xl text-xs hover:bg-indigo-500 disabled:opacity-50"
+                >
+                  {savingPassword ? 'Menyimpan...' : 'Perbarui Kata Sandi'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

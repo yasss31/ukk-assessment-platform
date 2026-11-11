@@ -116,3 +116,4 @@ def duplicate_rubric(rubric_id: str, current_user: User = Depends(require_examin
     )
     storage.save_rubric(cloned)
     return cloned
+

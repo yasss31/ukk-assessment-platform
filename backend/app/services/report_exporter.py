@@ -164,3 +164,4 @@ class ReportExporter:
 </body>
 </html>"""
         return html
+

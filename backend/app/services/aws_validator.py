@@ -65,3 +65,4 @@ class AWSValidator:
                 region=region,
                 error_message=f"Terjadi kesalahan saat validasi AWS: {str(e)}"
             )
+

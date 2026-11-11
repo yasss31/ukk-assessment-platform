@@ -19,7 +19,14 @@ class User(BaseModel):
     role: UserRole = UserRole.EXAMINER
     email: Optional[str] = None
     is_active: bool = True
+    must_change_password: bool = False
     created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+
+
+class PasswordChangeRequest(BaseModel):
+    current_password: str
+    new_password: str
+
 
 
 class UserLogin(BaseModel):
@@ -55,6 +62,27 @@ class IndicatorStatus(str, Enum):
     SKIP = "SKIP"
     ERROR = "ERROR"
     WARNING = "WARNING"
+
+
+class ErrorSeverity(str, Enum):
+    CRITICAL = "Critical"
+    MAJOR = "Major"
+    MINOR = "Minor"
+    INFORMATIONAL = "Informational"
+
+
+class TroubleshootingGuide(BaseModel):
+    severity: ErrorSeverity
+    what_is_wrong: str
+    actual_found: str
+    expected_config: str
+    why_wrong: str
+    impact: str
+    fix_location: str
+    how_to_fix: List[str]
+    how_to_verify: List[str]
+    cli_guide: Optional[str] = None
+
 
 
 class RubricIndicator(BaseModel):
@@ -130,7 +158,17 @@ class IndicatorResult(BaseModel):
     weight: float
     evidence: str
     error_message: Optional[str] = None
+    severity: Optional[ErrorSeverity] = None
+    troubleshooting: Optional[TroubleshootingGuide] = None
+    is_resolved: bool = False
+    reassessment_history: List[Dict[str, Any]] = []
     timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+
+
+class ReassessmentRequest(BaseModel):
+    indicator_ids: Optional[List[str]] = None  # None = semua yang gagal
+    aws_credentials: AWSCredentialInput
+
 
 
 class AssessmentSession(BaseModel):
@@ -194,3 +232,4 @@ class ServiceHealthStatus(BaseModel):
     active_assessments_count: int = 0
     auto_play_status: str
     timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+

@@ -3,10 +3,11 @@ app/routers/auth_routes.py - Endpoint Autentikasi Pengguna & Sesi
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from app.auth import _USERS_STORE, verify_password, create_access_token, get_current_user
-from app.models.schemas import User, Token
+from app.auth import _USERS_STORE, verify_password, hash_password, create_access_token, get_current_user
+from app.models.schemas import User, Token, PasswordChangeRequest
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
+
 
 
 @router.post("/login", response_model=Token)
@@ -44,3 +45,21 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 @router.get("/me", response_model=User)
 async def get_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.post("/change-password")
+async def change_password(data: PasswordChangeRequest, current_user: User = Depends(get_current_user)):
+    """Memperbarui kata sandi akun secara aman dengan HMAC-SHA256 ber-salt."""
+    user_dict = _USERS_STORE.get(current_user.username)
+    if not user_dict:
+        raise HTTPException(status_code=404, detail="Akun pengguna tidak ditemukan")
+    if not verify_password(data.current_password, user_dict["password_hash"]):
+        raise HTTPException(status_code=400, detail="Kata sandi lama yang Anda masukkan salah")
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="Kata sandi baru minimal 6 karakter")
+    
+    user_dict["password_hash"] = hash_password(data.new_password)
+    user_dict["must_change_password"] = False
+    return {"message": "Kata sandi berhasil diperbarui"}
+
+

@@ -4,102 +4,57 @@ Panduan ini menjelaskan cara mempublikasikan **UKK Assessment Platform** yang be
 
 ---
 
-## 🎯 Keuntungan Menggunakan Cloudflare Tunnel
+## 🎯 Mengapa Menggunakan Cloudflare Tunnel?
 
 1. **Tanpa Port Forwarding:** Anda tidak perlu membuka port 80/443 di firewall VPS Anda.
 2. **IP VPS Tersembunyi:** IP publik VPS Anda aman dari serangan DDoS dan pemindaian port publik.
 3. **SSL/HTTPS Otomatis:** Koneksi terenkripsi penuh tanpa perlu repot mengonfigurasi Let's Encrypt / Certbot.
-4. **Gratis:** Fitur Cloudflare Zero Trust / Tunnel tersedia secara gratis.
+4. **Otomatis Melalui Docker:** Container `cloudflared` sudah terintegrasi di `docker-compose.yml`.
 
 ---
 
-## 📋 Langkah-langkah Konfigurasi di VPS
+## 🚀 Cara Cepat (Zero-Touch via Docker Compose)
 
-### Langkah 1: Siapkan Aplikasi di VPS dengan Docker Compose
-Masuk ke terminal SSH VPS Anda:
-```bash
-# 1. Update paket sistem
-sudo apt update && sudo apt install -y curl git docker.io docker-compose-v2
+Jika Anda sudah memiliki Cloudflare Tunnel Token, Anda cukup memasukkannya ke file `.env` di VPS:
 
-# 2. Clone repository UKK Assessment Platform
-git clone https://github.com/yasss31/ukk-assessment-platform.git
-cd ukk-assessment-platform
-
-# 3. Jalankan container
-docker compose up -d --build
-
-# 4. Verifikasi bahwa frontend dan backend aktif
-docker compose ps
-curl http://localhost:80
-```
+1. Buat file `.env` di folder root `ukk-assessment-platform`:
+   ```bash
+   cp .env.example .env
+   nano .env
+   ```
+2. Isi nilai `CLOUDFLARE_TUNNEL_TOKEN`:
+   ```env
+   CLOUDFLARE_TUNNEL_TOKEN=eyJhIjoiNDFjMGQ0YjYyOGUzYzQwMWJlNjJlYTUxODFhNzU4MzQiLCJ0IjoiN2NkMTZmZGEtYWRjMi00ZmI3LTlmZjAtOTYwMjMxNzQ2Yzk2IiwicyI6Ik5XSXlZelpsWVRJdE1EWXhPQzAwT1dGaExUazNaRFl0Wm1FeU0yWmxPV0U1TXpCbSJ9
+   ```
+3. Jalankan container:
+   ```bash
+   docker compose up -d --build
+   ```
+   Layanan `cloudflared` akan otomatis menyala di background, terhubung ke Cloudflare Edge Network, dan merutekan traffic domain Anda ke container frontend (port 80).
 
 ---
 
-### Langkah 2: Pasang `cloudflared` di VPS
-Jalankan perintah berikut di VPS (Linux x86_64 / amd64):
+## 📋 Cara Manual via `systemd` Service (Opsi Alternatif di Host VPS)
+
+Jika ingin menjalankan `cloudflared` langsung di host OS VPS (bukan di Docker):
+
+### Langkah 1: Pasang `cloudflared` di VPS
 ```bash
-# Unduh binary resmi cloudflared
+# Unduh binary resmi cloudflared (Linux x86_64)
 curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
 
 # Pasang paket
 sudo dpkg -i cloudflared.deb
 ```
 
----
-
-### Langkah 3: Hubungkan `cloudflared` dengan Akun Cloudflare
-
-Jalankan perintah login:
+### Langkah 2: Daftarkan Service Menggunakan Token Anda
+Jalankan perintah instalasi service dengan token Anda:
 ```bash
-cloudflared tunnel login
+sudo cloudflared service install eyJhIjoiNDFjMGQ0YjYyOGUzYzQwMWJlNjJlYTUxODFhNzU4MzQiLCJ0IjoiN2NkMTZmZGEtYWRjMi00ZmI3LTlmZjAtOTYwMjMxNzQ2Yzk2IiwicyI6Ik5XSXlZelpsWVRJdE1EWXhPQzAwT1dGaExUazNaRFl0Wm1FeU0yWmxPV0U1TXpCbSJ9
 ```
-Terminal akan menampilkan sebuah tautan URL. Buka tautan tersebut di peramban web komputer Anda, lalu pilih domain yang ingin Anda gunakan. Setelah diotorisasi, file sertifikat `cert.pem` akan otomatis tersimpan di `~/.cloudflared/cert.pem` di VPS.
 
----
-
-### Langkah 4: Buat Tunnel Baru
-Beri nama tunnel Anda, misalnya `ukk-tunnel`:
+### Langkah 3: Aktifkan Service
 ```bash
-cloudflared tunnel create ukk-tunnel
-```
-Catat **Tunnel ID** (string UUID panjang) yang muncul di layar terminal.
-
----
-
-### Langkah 5: Buat File Konfigurasi Tunnel
-Buat file `config.yml` di folder `~/.cloudflared/`:
-```bash
-nano ~/.cloudflared/config.yml
-```
-Isi dengan konfigurasi berikut (ganti `<TUNNEL_ID>` dan `<domainanda.com>`):
-```yaml
-tunnel: <TUNNEL_ID>
-credentials-file: /root/.cloudflared/<TUNNEL_ID>.json
-
-ingress:
-  # Arahkan domain ke frontend aplikasi (port 80)
-  - hostname: ukk.domainanda.com
-    service: http://localhost:80
-  # Catch-all default 404
-  - service: http_status:404
-```
-Simpan file (`Ctrl + O`, lalu `Enter`, lalu `Ctrl + X`).
-
----
-
-### Langkah 6: Hubungkan Subdomain DNS di Cloudflare
-Arahkan subdomain Anda ke tunnel:
-```bash
-cloudflared tunnel route dns ukk-tunnel ukk.domainanda.com
-```
-Perintah ini akan secara otomatis menambahkan CNAME record di dashboard Cloudflare DNS Anda!
-
----
-
-### Langkah 7: Jalankan Tunnel Sebagai Service Otomatis
-Agar tunnel selalu aktif meskipun VPS di-restart, daftarkan sebagai systemd service:
-```bash
-sudo cloudflared service install
 sudo systemctl enable cloudflared
 sudo systemctl start cloudflared
 sudo systemctl status cloudflared
@@ -107,20 +62,11 @@ sudo systemctl status cloudflared
 
 ---
 
-## ⚡ Opsi Alternatif Cepat (Quick Tunnel Tanpa Konfigurasi Domain)
-Jika Anda hanya ingin uji coba cepat saat hari ujian tanpa mengubah DNS domain:
-```bash
-cloudflared tunnel --url http://localhost:80
-```
-Cloudflare akan memberikan tautan publik instan (misal: `https://contoh-random.trycloudflare.com`) yang bisa langsung dibagikan ke para penguji.
-
----
-
 ## 🔒 Konfigurasi Google Sheets di VPS
 1. Buka domain yang sudah aktif di peramban (`https://ukk.domainanda.com`).
 2. Masuk menggunakan akun admin:
    - **Username:** `admin`
-   - **Password:** `adminukk2026`
+   - **Password:** `adminukk2026` *(Disarankan langsung diganti melalui ikon Kunci di pojok kanan atas)*
 3. Masuk ke tab **Pengaturan & Cloud**.
 4. Paste isi file JSON Service Account Google Anda pada formulir yang tersedia dan klik **Terapkan Service Account**.
 5. Pastikan email Service Account sudah di-share sebagai **Editor** pada Google Spreadsheet `1Ri7F8T7YTQdr7F71aslfVpIfYrSva_F0dmtbT5tBJW8`.

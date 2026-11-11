@@ -58,3 +58,4 @@ export const Sidebar: React.FC<Props> = ({ activeTab, setActiveTab }) => {
     </aside>
   );
 };
+

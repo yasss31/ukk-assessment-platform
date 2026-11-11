@@ -1,5 +1,5 @@
 // api.ts - Klien API Terintegrasi UKK Assessment Platform
-import {
+import type {
   User, Participant, RubricProfile, AssessmentSession,
   DashboardStats, AutoPlayConfig, AutoPlayLog, AWSCredentialInput
 } from './types';
@@ -43,6 +43,15 @@ export const api = {
   async getMe(): Promise<User> {
     const res = await fetch(`${API_BASE}/api/auth/me`, {
       headers: getAuthHeader(),
+    });
+    return handleResponse(res);
+  },
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/api/auth/change-password`, {
+      method: 'POST',
+      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
     });
     return handleResponse(res);
   },
@@ -152,6 +161,23 @@ export const api = {
       body: JSON.stringify(payload),
     });
     return handleResponse(res);
+  },
+
+  async reassess(assessmentId: string, creds: AWSCredentialInput, indicatorIds?: string[]) {
+    const res = await fetch(`${API_BASE}/api/assessments/${assessmentId}/reassess`, {
+      method: 'POST',
+      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ aws_credentials: creds, indicator_ids: indicatorIds }),
+    });
+    return handleResponse<any>(res);
+  },
+
+  async getAiExplanation(assessmentId: string, indicatorId: string) {
+    const res = await fetch(`${API_BASE}/api/assessments/${assessmentId}/indicators/${indicatorId}/ai-explain`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+    });
+    return handleResponse<any>(res);
   },
 
   async listAssessments(): Promise<AssessmentSession[]> {

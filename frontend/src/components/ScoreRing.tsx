@@ -67,3 +67,4 @@ export const ScoreRing: React.FC<Props> = ({ score, maxScore = 100, size = 120 }
     </div>
   );
 };
+

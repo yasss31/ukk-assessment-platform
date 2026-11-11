@@ -163,3 +163,4 @@ class AWSAutoPlayManager:
             "details": details
         }
         storage.add_autoplay_log(log_entry)
+

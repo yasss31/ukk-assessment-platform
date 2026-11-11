@@ -32,3 +32,4 @@ def test_rubrics_persistence():
     default_p = storage.get_rubric("default-ukk-mbg-rev1")
     assert default_p is not None
     assert "Revisi 1" in default_p.name
+

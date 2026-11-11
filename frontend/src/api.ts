@@ -4,7 +4,7 @@ import type {
   DashboardStats, AutoPlayConfig, AutoPlayLog, AWSCredentialInput
 } from './types';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 function getAuthHeader(): HeadersInit {
   const token = localStorage.getItem('ukk_token');

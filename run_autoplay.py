@@ -59,6 +59,7 @@ def read_aws_credentials(custom_path: str = None) -> AWSCredentialInput:
     if custom_path:
         cred_files.append(Path(custom_path))
     cred_files.extend([
+        Path("d:/LKPD/ukk-mbg-automation/credentials"),
         Path.home() / ".aws" / "credentials",
         Path("d:/LKPD/aws-lkpd-automation/.env"),
         Path.cwd() / ".env"
@@ -244,3 +245,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

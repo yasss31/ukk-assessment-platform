@@ -13,7 +13,7 @@ from app.models.schemas import (
 )
 from app.database.storage import storage
 from app.services.aws_validator import AWSValidator
-from app.services.assessment_engine import AWSAssessmentEngine
+from app.services.official_grader_adapter import OfficialGraderAdapter
 from app.services.rubric_engine import RubricEngine
 from app.services.report_exporter import ReportExporter
 from app.services.troubleshooting_kb import TroubleshootingKB
@@ -28,12 +28,7 @@ async def validate_aws_credentials(creds: AWSCredentialInput, current_user: User
 
 
 def _execute_assessment_task(session_id: str, creds: AWSCredentialInput, profile_dict: Any):
-    """Worker fungsi eksekusi penilaian AWS di background."""
-    if isinstance(profile_dict, dict):
-        profile = RubricProfile(**profile_dict)
-    else:
-        profile = profile_dict
-
+    """Worker fungsi eksekusi penilaian AWS di background dengan single source of truth grade.py."""
     session_data = storage.get_assessment(session_id)
     if not session_data:
         return
@@ -41,34 +36,37 @@ def _execute_assessment_task(session_id: str, creds: AWSCredentialInput, profile
     session_data["status"] = AssessmentStatus.RUNNING.value
     storage.save_assessment(session_data)
 
-    start_time = datetime.utcnow()
     try:
-        engine = AWSAssessmentEngine(creds, profile)
-        eval_results = engine.run_assessment()
+        p_data = session_data.get("participant", {})
+        participant = Participant(**p_data) if isinstance(p_data, dict) else p_data
+        examiner = session_data.get("examiner_name", "Penguji UKK")
 
-        # Hitung skor akhir dengan RubricEngine
-        final_score, p_count, f_count, s_count, e_count, w_count = RubricEngine.calculate_score(eval_results, profile)
-
-        duration = (datetime.utcnow() - start_time).total_seconds()
+        # Jalankan Single Source of Truth via OfficialGraderAdapter
+        session = OfficialGraderAdapter.run_assessment(
+            creds=creds,
+            participant=participant,
+            examiner_name=examiner
+        )
         
-        session_data["status"] = AssessmentStatus.COMPLETED.value
-        session_data["total_score"] = final_score
-        session_data["pass_count"] = p_count
-        session_data["fail_count"] = f_count
-        session_data["skip_count"] = s_count
-        session_data["error_count"] = e_count
-        session_data["warning_count"] = w_count
-        session_data["completion_percentage"] = 100.0
+        session_data["status"] = session.status.value if hasattr(session.status, "value") else str(session.status)
+        session_data["total_score"] = session.total_score
+        session_data["pass_count"] = session.pass_count
+        session_data["fail_count"] = session.fail_count
+        session_data["skip_count"] = session.skip_count
+        session_data["error_count"] = session.error_count
+        session_data["warning_count"] = session.warning_count
+        session_data["completion_percentage"] = session.completion_percentage
         session_data["results"] = [
             r.model_dump() if hasattr(r, "model_dump") else r.dict()
-            for r in eval_results
+            for r in session.results
         ]
-        session_data["completed_at"] = datetime.utcnow().isoformat()
-        session_data["duration_seconds"] = round(duration, 1)
+        session_data["completed_at"] = session.completed_at
+        session_data["duration_seconds"] = session.duration_seconds
+        session_data["notes"] = session.notes
 
     except Exception as e:
         session_data["status"] = AssessmentStatus.FAILED.value
-        session_data["notes"] = f"Kesalahan saat evaluasi AWS: {str(e)}"
+        session_data["notes"] = f"Kesalahan saat evaluasi: {str(e)}"
         session_data["completed_at"] = datetime.utcnow().isoformat()
 
     storage.save_assessment(session_data)
@@ -149,34 +147,27 @@ async def reassess_assessment(assessment_id: str, payload: ReassessmentRequest, 
     if not val.is_valid:
         raise HTTPException(status_code=400, detail=val.error_message or "Kredensial AWS tidak valid")
 
-    profile_id = session_data.get("rubric_id", "default-ukk-mbg-rev1")
-    profile = storage.get_rubric_profile(profile_id)
-    if not profile:
-        profile = storage.get_rubric_profile("default-ukk-mbg-rev1")
+    p_data = session_data.get("participant", {})
+    participant = Participant(**p_data) if isinstance(p_data, dict) else p_data
+    examiner = session_data.get("examiner_name", "Penguji UKK")
 
-    # Siapkan existing IndicatorResult objects
-    existing_results = [
-        IndicatorResult(**r) if isinstance(r, dict) else r
-        for r in session_data.get("results", [])
-    ]
+    fresh_session = OfficialGraderAdapter.run_assessment(
+        creds=payload.aws_credentials,
+        participant=participant,
+        examiner_name=examiner
+    )
 
-    engine = AWSAssessmentEngine(payload.aws_credentials, profile)
-    updated_results = engine.reassess_indicators(payload.indicator_ids, existing_results)
-
-    # Hitung ulang skor terbobot
-    final_score, p_count, f_count, s_count, e_count, w_count = RubricEngine.calculate_score(updated_results, profile)
-
-    session_data["total_score"] = final_score
-    session_data["pass_count"] = p_count
-    session_data["fail_count"] = f_count
-    session_data["skip_count"] = s_count
-    session_data["error_count"] = e_count
-    session_data["warning_count"] = w_count
+    session_data["total_score"] = fresh_session.total_score
+    session_data["pass_count"] = fresh_session.pass_count
+    session_data["fail_count"] = fresh_session.fail_count
+    session_data["skip_count"] = fresh_session.skip_count
+    session_data["error_count"] = fresh_session.error_count
+    session_data["warning_count"] = fresh_session.warning_count
     session_data["results"] = [
         r.model_dump() if hasattr(r, "model_dump") else r.dict()
-        for r in updated_results
+        for r in fresh_session.results
     ]
-    session_data["notes"] = f"{session_data.get('notes', '')} [Pemeriksaan ulang pada {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}]".strip()
+    session_data["notes"] = f"{session_data.get('notes', '')} [Pemeriksaan ulang via grade.py pada {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}]".strip()
     storage.save_assessment(session_data)
 
     return {

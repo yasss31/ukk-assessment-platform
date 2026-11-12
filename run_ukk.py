@@ -23,7 +23,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "back
 try:
     import boto3
     from botocore.exceptions import ClientError
-    from app.models.schemas import AWSCredentialInput, RubricProfile
+    from app.models.schemas import AWSCredentialInput, RubricProfile, Participant
+    from app.services.official_grader_adapter import OfficialGraderAdapter
     from app.services.assessment_engine import AWSAssessmentEngine
     from app.services.rubric_engine import RubricEngine
     from app.services.report_exporter import ReportExporter
@@ -132,21 +133,35 @@ def main():
         print("[ERROR] Profil rubrik tidak ditemukan di database.")
         sys.exit(1)
 
-    profile = RubricProfile(**rubric_dict) if isinstance(rubric_dict, dict) else rubric_dict
-    print(f"  [RUBRIK OK] {profile.name} (v{profile.version})")
-    print(f"  Total Indikator : {len(profile.indicators)} aspek | Bobot Maksimal: {profile.total_weight}")
+    participant = Participant(
+        id="part-cli",
+        name=args.name or "Peserta Mandiri",
+        participant_number=args.number or "UKK-2026-001",
+        student_class=args.class_name,
+        school=args.school
+    )
 
-    # 3. Jalankan Engine Evaluasi
-    print("\n[3/4] Menjalankan audit infrastruktur AWS live...")
-    start_time = time.time()
-    engine = AWSAssessmentEngine(creds_input, profile)
-    results = engine.run_assessment()
-    duration = round(time.time() - start_time, 2)
+    # 3. Jalankan Engine Evaluasi Resmi
+    print("\n[3/4] Menjalankan audit infrastruktur AWS live (Single Source of Truth: grade.py)...")
+    session = OfficialGraderAdapter.run_assessment(
+        creds=creds_input,
+        participant=participant,
+        examiner_name="Penguji CLI UKK",
+        test_asg=False,
+        skip_sns_wait=True
+    )
+    results = session.results
+    duration = session.duration_seconds or 0.0
     print(f"  [AUDIT SELESAI] Waktu eksekusi: {duration} detik")
 
     # 4. Hitung Skor & Hasil
-    final_score, p_count, f_count, s_count, e_count, w_count = RubricEngine.calculate_score(results, profile)
-    percentage = round((final_score / profile.total_weight) * 100, 1)
+    final_score = session.total_score
+    p_count = session.pass_count
+    f_count = session.fail_count
+    s_count = session.skip_count
+    w_count = session.warning_count
+    e_count = session.error_count
+    percentage = round(final_score, 1)
     status_kelulusan = "KOMPETEN (LULUS)" if percentage >= 70.0 else "BELUM KOMPETEN (REMEDIAL)"
 
     # Tampilkan Tabel Hasil
@@ -156,39 +171,39 @@ def main():
     print(f"  Peserta        : {args.name} ({args.number})")
     print(f"  Kelas/Sekolah  : {args.class_name} - {args.school}")
     print(f"  Akun AWS       : {account_id} | Region: {creds_input.aws_region}")
-    print(f"  Skor Akhir     : {final_score:.1f} / {profile.total_weight:.1f} ({percentage}%)")
+    print(f"  Skor Akhir     : {final_score:.1f} / 100.0 ({percentage}%)")
     print(f"  Hasil Akhir    : {status_kelulusan}")
-    print(f"  Statistik      : PASS={p_count} | FAIL={f_count} | SKIP={s_count} | ERROR={e_count}")
+    print(f"  Statistik      : PASS={p_count} | FAIL={f_count} | SKIP={s_count} | WARNING={w_count}")
     print("-----------------------------------------------------------------------------")
-    print(f"  {'STATUS':6s} | {'KODE':5s} | {'BOBOT':5s} | {'NAMA ASPEK / INDIKATOR':45s}")
+    print(f"  {'STATUS':6s} | {'KODE':8s} | {'BOBOT':5s} | {'POIN':5s} | {'NAMA ASPEK / INDIKATOR':40s}")
     print("-----------------------------------------------------------------------------")
     
     for r in results:
         code = r.code
-        name = (r.name[:42] + '...') if len(r.name) > 45 else r.name
+        name = (r.name[:38] + '...') if len(r.name) > 40 else r.name
         st = r.status
         w = r.weight
+        sc = r.score
         
         # Simbol status
         flag = "[PASS]" if st == "PASS" else ("[FAIL]" if st == "FAIL" else f"[{st}]")
-        print(f"  {flag:6s} | {code:5s} | {w:5.1f} | {name:45s}")
-        if st in ["FAIL", "ERROR"] and r.error_message:
-            print(f"         └─ Catatan: {r.error_message}")
+        print(f"  {flag:6s} | {code:8s} | {w:5.1f} | {sc:5.1f} | {name:40s}")
 
     print("=============================================================================")
 
     # 5. Rekomendasi Perbaikan untuk yang FAIL
-    failed_items = [r for r in results if r.status in ["FAIL", "ERROR"]]
+    failed_items = [r for r in results if r.status in ["FAIL", "WARNING"]]
     if failed_items:
-        print(f"\n[CATATAN & PANDUAN PERBAIKAN ({len(failed_items)} Indikator Gagal)]:")
-        for idx, item in enumerate(failed_items[:5], 1):
+        print(f"\n[CATATAN & PANDUAN PERBAIKAN BERDASARKAN DOKUMEN SOAL UKK REV 1 ({len(failed_items)} Aspek)]:")
+        for idx, item in enumerate(failed_items, 1):
+            guide = item.troubleshooting
+            doc_ref = guide.fix_location if guide else "Dokumen Soal UKK Rev 1"
             print(f"  {idx}. {item.code} - {item.name}")
-            print(f"     Ekspektasi : {item.expected}")
-            print(f"     Aktual     : {item.actual or 'Tidak ditemukan'}")
-            if item.troubleshooting:
-                print(f"     Solusi     : {item.troubleshooting.how_to_fix[0] if item.troubleshooting.how_to_fix else '-'}")
-        if len(failed_items) > 5:
-            print(f"  ... dan {len(failed_items) - 5} aspek lainnya (lihat laporan lengkap).")
+            print(f"     └─ Referensi: {doc_ref}")
+            if guide and guide.how_to_fix:
+                print(f"     └─ Tindakan : {guide.how_to_fix[0]}")
+    else:
+        print("\n[SELAMAT!] Seluruh aspek pengujian evaluasi resmi telah lulus dengan sempurna!")
 
     # 6. Simpan Laporan Lokal
     out_dir = Path(args.out_dir)
@@ -206,15 +221,15 @@ def main():
             "student_class": args.class_name,
             "school": args.school
         },
-        "rubric_id": profile.id,
-        "rubric_name": profile.name,
-        "rubric_version": profile.version,
+        "rubric_id": session.rubric_id,
+        "rubric_name": session.rubric_name,
+        "rubric_version": session.rubric_version,
         "examiner_name": "CLI Grader Script",
         "aws_account_id": account_id,
         "aws_region": creds_input.aws_region,
         "status": "COMPLETED",
         "total_score": final_score,
-        "max_score": profile.total_weight,
+        "max_score": session.max_score,
         "score_percentage": percentage,
         "pass_count": p_count,
         "fail_count": f_count,

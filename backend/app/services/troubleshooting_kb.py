@@ -284,20 +284,19 @@ class TroubleshootingKB:
             ]
         },
         "14.01": {
-            "severity": ErrorSeverity.MAJOR,
-            "what_is_wrong": "Target Tracking Dynamic Scaling Policy dengan metrik CPUUtilization 50% belum terpasang pada ASG.",
-            "why_wrong": "Auto scaling dinamis diperlukan agar jumlah server otomatis bertambah saat beban lonjakan aduan masyarakat meningkat.",
-            "impact": "Server dapat crash atau lambat saat terjadi lonjakan kunjungan karena jumlah instance tidak dapat bertambah secara otomatis.",
-            "fix_location": "AWS Console -> EC2 -> Auto Scaling groups -> mbg-asg-fe -> Automatic scaling",
+            "severity": ErrorSeverity.INFORMATIONAL,
+            "what_is_wrong": "Uji ketahanan Auto Scaling (terminate 1 instance FE) dilewati (opsional).",
+            "why_wrong": "Pengujian ini bersifat destruktif (+- 5 menit) dan dilewati secara default oleh grader resmi.",
+            "impact": "Tidak mempengaruhi nilai kelulusan jika dilewati (SKIP).",
+            "fix_location": "Dokumen UKK Rev1: Bab D.9 | Halaman 7",
             "how_to_fix": [
-                "Buka EC2 -> Auto Scaling groups -> pilih 'mbg-asg-fe'.",
-                "Pilih tab 'Automatic scaling' -> klik 'Create dynamic scaling policy'.",
-                "Policy type: 'Target tracking scaling', Metric type: 'Average CPU utilization', Target value: '50'.",
-                "Instance warmup: '300' seconds.",
-                "Klik 'Create'."
+                "Pengujian ini opsional. Jika ingin menguji terminate instance secara manual:",
+                "Buka EC2 -> Auto Scaling groups -> 'mbg-asg-fe' -> tab Instance management.",
+                "Pilih salah satu instance, klik Actions -> Terminate.",
+                "Amati ASG secara otomatis meluncurkan instance baru pengganti."
             ],
             "how_to_verify": [
-                "Di tab Automatic scaling, pastikan terdaftar policy 'TargetTracking-AverageCPUUtilization-50%'."
+                "Jalankan grader resmi dengan opsi: py grade.py --test-asg"
             ]
         },
         "15.02": {

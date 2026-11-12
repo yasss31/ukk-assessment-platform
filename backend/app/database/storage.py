@@ -131,36 +131,31 @@ class DataStorage:
             {"id": "IND-08-02", "code": "08.02", "name": "UserData mbg-lt-fe auto-mount EFS persisten dan start Apache", "category": "Compute", "expected_value": "Contains mount -a & httpd", "weight": 2.0, "check_method": "aws_lt_fe_userdata"},
 
             # 09. Auto Scaling Group (Bobot 7)
-            {"id": "IND-09-01", "code": "09.01", "name": "ASG mbg-asg-fe (Min=2, Desired=2, Max=4, multi-AZ private)", "category": "Compute", "expected_value": "Capacity 2/2/4 in private subnets", "weight": 4.0, "check_method": "aws_asg_capacity"},
-            {"id": "IND-09-02", "code": "09.02", "name": "Minimal 2 instance FE berstatus InService", "category": "Compute", "expected_value": "InService >= 2", "weight": 3.0, "check_method": "aws_asg_inservice"},
+            {"id": "IND-OFFICIAL-09", "code": "ASPEK-09", "name": "Auto Scaling Group mbg-asg-fe (subnet private, multi-AZ & CPU 60%)", "category": "Compute", "expected_value": "Min/Desired/Max 2/2/4, multi-AZ, Target Tracking CPU 60%", "weight": 7.0, "check_method": "official_grader_asg"},
 
             # 10. Target Group (Bobot 5)
-            {"id": "IND-10-01", "code": "10.01", "name": "Target Group mbg-tg-fe (HTTP:80, health path /health.php, 2 healthy)", "category": "Load Balancing", "expected_value": "2 Targets Healthy", "weight": 5.0, "check_method": "aws_target_group_health"},
+            {"id": "IND-OFFICIAL-10", "code": "ASPEK-10", "name": "Target Group mbg-tg-fe", "category": "Load Balancing", "expected_value": "HTTP:80, health path /health.php, >=2 healthy", "weight": 5.0, "check_method": "official_grader_tg"},
 
             # 11. Application Load Balancer (Bobot 6)
-            {"id": "IND-11-01", "code": "11.01", "name": "ALB mbg-alb-fe internet-facing di subnet public ALB 1a & 1b", "category": "Load Balancing", "expected_value": "active / internet-facing", "weight": 3.0, "check_method": "aws_alb_config"},
-            {"id": "IND-11-02", "code": "11.02", "name": "Endpoint DNS ALB merespons HTTP 200 (Dashboard MBG Publik)", "category": "Load Balancing", "expected_value": "HTTP 200 OK", "weight": 3.0, "check_method": "http_alb_reachable"},
+            {"id": "IND-OFFICIAL-11", "code": "ASPEK-11", "name": "Application Load Balancer mbg-alb-fe", "category": "Load Balancing", "expected_value": "internet-facing, public ALB 1a/1b, HTTP 200", "weight": 6.0, "check_method": "official_grader_alb"},
 
             # 12. Back End Database & Auto-migration (Bobot 5)
-            {"id": "IND-12-01", "code": "12.01", "name": "Back End /health merespons status: ok & db: connected", "category": "Application", "expected_value": "status:ok, db:connected", "weight": 3.0, "check_method": "app_be_health"},
-            {"id": "IND-12-02", "code": "12.02", "name": "Auto-migrasi tabel mbg_db (users, sppg, laporan, aduan) sukses", "category": "Application", "expected_value": "All 4 tables exist", "weight": 2.0, "check_method": "app_be_tables"},
+            {"id": "IND-OFFICIAL-12", "code": "ASPEK-12", "name": "Back End berjalan & auto-migration database (via SSM)", "category": "Application", "expected_value": "status: ok, db/s3/sns connected, tables exist, seeded", "weight": 5.0, "check_method": "official_grader_be"},
 
             # 13. SNS Email Delivery Metric (Bobot 6)
-            {"id": "IND-13-01", "code": "13.01", "name": "Notifikasi terkirim (CloudWatch NumberOfNotificationsDelivered >= 2)", "category": "Notification", "expected_value": "delivered >= 2", "weight": 6.0, "check_method": "aws_sns_delivered"},
+            {"id": "IND-OFFICIAL-13", "code": "ASPEK-13", "name": "Notifikasi email SNS saat aduan/laporan baru", "category": "Notification", "expected_value": "Published & Delivered >= 2, no error log", "weight": 6.0, "check_method": "official_grader_sns"},
 
-            # 14. Auto Scaling Dynamic Scaling Policy (Bobot 6)
-            {"id": "IND-14-01", "code": "14.01", "name": "Target Tracking Scaling Policy (CPUUtilization 50%) terkonfigurasi pada ASG", "category": "Compute", "expected_value": "TargetTracking CPU 50%", "weight": 6.0, "check_method": "aws_asg_scaling_policy"},
+            # 14. Uji Ketahanan Auto Scaling (Bobot 6 - Opsional / Default SKIP)
+            {"id": "IND-OFFICIAL-14", "code": "ASPEK-14", "name": "Uji ketahanan Auto Scaling (terminate 1 instance FE)", "category": "Compute", "expected_value": "ASG launch replacement in < 5 mins (Opsional: SKIP)", "weight": 6.0, "check_method": "official_grader_asg_resilience"},
 
             # 15. Shared Session EFS (Bobot 6)
-
-            {"id": "IND-15-01", "code": "15.01", "name": "EFS mbg-efs-fe-session available dengan Mount Target di 2 AZ private FE", "category": "Storage", "expected_value": "available / 2 mount targets", "weight": 3.0, "check_method": "aws_efs_mount_targets"},
-            {"id": "IND-15-02", "code": "15.02", "name": "EFS ter-mount ke /mnt/efs/mbg-session & php.ini session.save_path sesuai", "category": "Storage", "expected_value": "/mnt/efs/mbg-session", "weight": 3.0, "check_method": "app_fe_efs_mount"},
+            {"id": "IND-OFFICIAL-15", "code": "ASPEK-15", "name": "EFS mbg-efs-fe-session & mount di instance FE", "category": "Storage", "expected_value": "Available, mount /mnt/efs/mbg-session, session.save_path OK", "weight": 6.0, "check_method": "official_grader_efs"},
 
             # 16. Multi-instance Session Sharing (Bobot 7)
-            {"id": "IND-16-01", "code": "16.01", "name": "Session sharing lintas instance FE di belakang ALB (30 request konsisten)", "category": "Application", "expected_value": "No logout across FE instances", "weight": 7.0, "check_method": "app_session_sharing"},
+            {"id": "IND-OFFICIAL-16", "code": "ASPEK-16", "name": "Session shared antar instance FE (bukti fungsi EFS)", "category": "Application", "expected_value": "No logout across FE instances, 30 requests consistent", "weight": 7.0, "check_method": "official_grader_session_sharing"},
 
             # 17. End-to-End Application Workflow (Bobot 6)
-            {"id": "IND-17-01", "code": "17.01", "name": "Alur aplikasi E2E: Login 3 role (bgn, sppg1, masy1), aduan, upload S3", "category": "Application", "expected_value": "Complete E2E workflow success", "weight": 6.0, "check_method": "app_e2e_workflow"},
+            {"id": "IND-OFFICIAL-17", "code": "ASPEK-17", "name": "Alur aplikasi end-to-end lewat ALB (login 3 role, aduan, upload S3)", "category": "Application", "expected_value": "Login 3 role, create aduan, upload S3, tanggapan, laporan", "weight": 6.0, "check_method": "official_grader_e2e"},
         ]
         total_w = sum(i["weight"] for i in indicators)
         return {

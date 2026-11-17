@@ -53,3 +53,4 @@ def test_regression_fixture_score_and_aspects():
     assert poin_diperoleh == 94.0
     final_score = round(100.0 * (poin_diperoleh / bobot_dinilai), 1)
     assert final_score == 100.0
+

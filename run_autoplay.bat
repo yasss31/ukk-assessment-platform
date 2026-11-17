@@ -8,3 +8,4 @@ if exist "%SCRIPT_DIR%backend\venv\Scripts\python.exe" (
 ) else (
     python "%SCRIPT_DIR%run_autoplay.py" %*
 )
+

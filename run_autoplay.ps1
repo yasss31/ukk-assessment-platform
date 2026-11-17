@@ -32,3 +32,4 @@ if ($loop) { $pyArgs += "--loop" }
 if ($creds) { $pyArgs += @("--creds", "$creds") }
 
 & $pythonPath $pyScript @pyArgs
+

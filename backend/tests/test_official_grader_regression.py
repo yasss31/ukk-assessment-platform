@@ -19,9 +19,14 @@ def test_regression_fixture_score_and_aspects():
     - Aspek 09: CPU 60% = PASS
     - Aspek 14: Uji ketahanan ASG = SKIP (tidak mengurangi nilai)
     """
-    # Muat fixture laporan grade.py resmi
-    fixture_path = Path("d:/LKPD/hasil_penilaian_20261112_104019.json")
-    assert fixture_path.is_file(), "Fixture file hasil_penilaian_20261112_104019.json harus tersedia"
+    # Muat fixture laporan grade.py resmi (prioritaskan relatif terhadap file test)
+    candidate_paths = [
+        Path(__file__).parent / "fixtures" / "hasil_penilaian_20261112_104019.json",
+        Path("d:/LKPD/hasil_penilaian_20261112_104019.json"),
+        Path.cwd() / "hasil_penilaian_20261112_104019.json",
+    ]
+    fixture_path = next((p for p in candidate_paths if p.is_file()), None)
+    assert fixture_path is not None and fixture_path.is_file(), "Fixture file hasil_penilaian_20261112_104019.json harus tersedia"
 
     data = json.loads(fixture_path.read_text(encoding="utf-8"))
 

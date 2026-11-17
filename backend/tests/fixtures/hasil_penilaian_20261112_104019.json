@@ -1,0 +1,1083 @@
+{
+  "peserta": "",
+  "akun": "937385515130",
+  "waktu": "20261112_104019",
+  "nilai_akhir": 100.0,
+  "aspek": {
+    "01": {
+      "judul": "VPC & Subnet (public hanya utk ALB, private utk FE/BE)",
+      "bobot": 6,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "VPC mbg-vpc ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "CIDR VPC = 10.20.0.0/16",
+          "status": "PASS",
+          "detail": "10.20.0.0/16"
+        },
+        {
+          "desc": "Subnet mbg-subnet-public-alb-1a ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-public-alb-1a: CIDR 10.20.1.0/24, AZ us-east-1a",
+          "status": "PASS",
+          "detail": "10.20.1.0/24 / us-east-1a"
+        },
+        {
+          "desc": "  mbg-subnet-public-alb-1a: auto-assign public IP = True",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-public-alb-1a: tipe PUBLIC (default route -> IGW)",
+          "status": "PASS",
+          "detail": "igw-01862c4ac6551e960"
+        },
+        {
+          "desc": "Subnet mbg-subnet-public-alb-1b ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-public-alb-1b: CIDR 10.20.2.0/24, AZ us-east-1b",
+          "status": "PASS",
+          "detail": "10.20.2.0/24 / us-east-1b"
+        },
+        {
+          "desc": "  mbg-subnet-public-alb-1b: auto-assign public IP = True",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-public-alb-1b: tipe PUBLIC (default route -> IGW)",
+          "status": "PASS",
+          "detail": "igw-01862c4ac6551e960"
+        },
+        {
+          "desc": "Subnet mbg-subnet-private-fe-1a ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-private-fe-1a: CIDR 10.20.11.0/24, AZ us-east-1a",
+          "status": "PASS",
+          "detail": "10.20.11.0/24 / us-east-1a"
+        },
+        {
+          "desc": "  mbg-subnet-private-fe-1a: auto-assign public IP = False",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-private-fe-1a: tipe PRIVATE (default route -> NAT)",
+          "status": "PASS",
+          "detail": "nat-0de6d15306924f231"
+        },
+        {
+          "desc": "Subnet mbg-subnet-private-fe-1b ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-private-fe-1b: CIDR 10.20.12.0/24, AZ us-east-1b",
+          "status": "PASS",
+          "detail": "10.20.12.0/24 / us-east-1b"
+        },
+        {
+          "desc": "  mbg-subnet-private-fe-1b: auto-assign public IP = False",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-private-fe-1b: tipe PRIVATE (default route -> NAT)",
+          "status": "PASS",
+          "detail": "nat-0de6d15306924f231"
+        },
+        {
+          "desc": "Subnet mbg-subnet-private-be ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-private-be: CIDR 10.20.10.0/24, AZ us-east-1a",
+          "status": "PASS",
+          "detail": "10.20.10.0/24 / us-east-1a"
+        },
+        {
+          "desc": "  mbg-subnet-private-be: auto-assign public IP = False",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-private-be: tipe PRIVATE (default route -> NAT)",
+          "status": "PASS",
+          "detail": "nat-0de6d15306924f231"
+        },
+        {
+          "desc": "Subnet mbg-subnet-db-1a ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-db-1a: CIDR 10.20.20.0/24, AZ us-east-1a",
+          "status": "PASS",
+          "detail": "10.20.20.0/24 / us-east-1a"
+        },
+        {
+          "desc": "  mbg-subnet-db-1a: auto-assign public IP = False",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-db-1a: TANPA default route ke internet",
+          "status": "PASS",
+          "detail": "None"
+        },
+        {
+          "desc": "Subnet mbg-subnet-db-1b ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-db-1b: CIDR 10.20.21.0/24, AZ us-east-1b",
+          "status": "PASS",
+          "detail": "10.20.21.0/24 / us-east-1b"
+        },
+        {
+          "desc": "  mbg-subnet-db-1b: auto-assign public IP = False",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-subnet-db-1b: TANPA default route ke internet",
+          "status": "PASS",
+          "detail": "None"
+        }
+      ]
+    },
+    "02": {
+      "judul": "Internet Gateway, NAT Gateway & Route Table",
+      "bobot": 6,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "IGW mbg-igw ada & attached ke mbg-vpc",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "NAT Gateway mbg-natgw-1a ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  state = available",
+          "status": "PASS",
+          "detail": "available"
+        },
+        {
+          "desc": "  berada di mbg-subnet-public-alb-1a",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  memakai 1 Elastic IP",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  zonal (bukan regional)",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Route table mbg-rt-public ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-rt-public: 0.0.0.0/0 -> mbg-igw",
+          "status": "PASS",
+          "detail": "igw-01862c4ac6551e960"
+        },
+        {
+          "desc": "  mbg-rt-public: asosiasi ke mbg-subnet-public-alb-1a",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-rt-public: asosiasi ke mbg-subnet-public-alb-1b",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-rt-public: tidak ada asosiasi subnet lain",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Route table mbg-rt-private ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-rt-private: 0.0.0.0/0 -> mbg-natgw-1a",
+          "status": "PASS",
+          "detail": "nat-0de6d15306924f231"
+        },
+        {
+          "desc": "  mbg-rt-private: asosiasi ke mbg-subnet-private-fe-1a",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-rt-private: asosiasi ke mbg-subnet-private-fe-1b",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-rt-private: asosiasi ke mbg-subnet-private-be",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mbg-rt-private: tidak ada asosiasi subnet lain",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "BE: akses internet keluar (HTTP 200/301/302)",
+          "status": "PASS",
+          "detail": "200"
+        },
+        {
+          "desc": "FE: akses internet keluar (HTTP 200/301/302)",
+          "status": "PASS",
+          "detail": "200"
+        }
+      ]
+    },
+    "03": {
+      "judul": "Security Group & inbound rule",
+      "bobot": 6,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "SG mbg-sg-alb ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "SG mbg-sg-fe ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "SG mbg-sg-be ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "SG mbg-sg-rds ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "SG mbg-sg-efs ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "mbg-sg-alb: TCP 80 dari 0.0.0.0/0",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "mbg-sg-fe: TCP 22 dari 0.0.0.0/0",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "mbg-sg-fe: TCP 80 dari 0.0.0.0/0",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "mbg-sg-be: TCP 22 dari 0.0.0.0/0",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "mbg-sg-be: TCP 80 dari 0.0.0.0/0",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "mbg-sg-rds: TCP 3306 dari 0.0.0.0/0",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "mbg-sg-efs: TCP 2049 (dari mbg-sg-fe ATAU 0.0.0.0/0)",
+          "status": "PASS",
+          "detail": ""
+        }
+      ]
+    },
+    "04": {
+      "judul": "RDS MySQL",
+      "bobot": 6,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "RDS mbg-rds-mysql ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Status = available",
+          "status": "PASS",
+          "detail": "available"
+        },
+        {
+          "desc": "Engine = mysql",
+          "status": "PASS",
+          "detail": "mysql"
+        },
+        {
+          "desc": "Template Free tier (kelas micro, bukan Multi-AZ)",
+          "status": "PASS",
+          "detail": "db.t3.micro multiAZ=False"
+        },
+        {
+          "desc": "Master username = admin",
+          "status": "PASS",
+          "detail": "admin"
+        },
+        {
+          "desc": "PubliclyAccessible = false",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "AZ = us-east-1a",
+          "status": "PASS",
+          "detail": "us-east-1a"
+        },
+        {
+          "desc": "VPC = mbg-vpc",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "DB subnet group = mbg-db-subnet-group",
+          "status": "PASS",
+          "detail": "mbg-db-subnet-group"
+        },
+        {
+          "desc": "DB subnet group berisi mbg-subnet-db-1a & 1b",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Security group = mbg-sg-rds",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Password db tidak bisa diverifikasi dari API; dibuktikan lewat koneksi BE (bagian 12)",
+          "status": "WARN",
+          "detail": ""
+        }
+      ]
+    },
+    "05": {
+      "judul": "S3 Bucket",
+      "bobot": 5,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "Bucket mbg-uploads-* ada",
+          "status": "PASS",
+          "detail": "mbg-uploads-937385515130-us-east-1-an"
+        },
+        {
+          "desc": "Nama sesuai pola Account Regional (mbg-uploads-<akun>-us-east-1-an)",
+          "status": "PASS",
+          "detail": "mbg-uploads-937385515130-us-east-1-an"
+        },
+        {
+          "desc": "Region = us-east-1",
+          "status": "PASS",
+          "detail": "None"
+        },
+        {
+          "desc": "Block Public Access: 4 opsi aktif",
+          "status": "PASS",
+          "detail": "{\"BlockPublicAcls\": true, \"IgnorePublicAcls\": true, \"BlockPublicPolicy\": true, \"RestrictPublicBuckets\": true}"
+        },
+        {
+          "desc": "Prefix aduan/ ada",
+          "status": "PASS",
+          "detail": "folder/objek terdeteksi"
+        },
+        {
+          "desc": "Prefix laporan/ ada",
+          "status": "PASS",
+          "detail": "folder/objek terdeteksi"
+        }
+      ]
+    },
+    "06": {
+      "judul": "SNS Topic & Subscription Email",
+      "bobot": 5,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "Topic mbg-sns-notifikasi ada (Standard)",
+          "status": "PASS",
+          "detail": "arn:aws:sns:us-east-1:937385515130:mbg-sns-notifikasi"
+        },
+        {
+          "desc": "Subscription email -> ukkce2627@smkn1bms.sch.id",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Status Confirmed (bukan PendingConfirmation)",
+          "status": "PASS",
+          "detail": "6c6ad5b3-94c"
+        }
+      ]
+    },
+    "07": {
+      "judul": "EC2 Back End (mbg-ec2-be) di subnet private",
+      "bobot": 6,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "Instance mbg-ec2-be running",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Instance type t3.micro",
+          "status": "PASS",
+          "detail": "t3.micro"
+        },
+        {
+          "desc": "AMI Amazon Linux 2023",
+          "status": "PASS",
+          "detail": "al2023-ami-2023.12.20261109.0-kernel-6.12-x86_64"
+        },
+        {
+          "desc": "Key pair vockey",
+          "status": "PASS",
+          "detail": "vockey"
+        },
+        {
+          "desc": "Subnet = mbg-subnet-private-be",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Tanpa IP publik",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Security group = mbg-sg-be",
+          "status": "PASS",
+          "detail": "mbg-sg-be"
+        },
+        {
+          "desc": "Instance profile = LabInstanceProfile",
+          "status": "PASS",
+          "detail": "LabInstanceProfile"
+        }
+      ]
+    },
+    "08": {
+      "judul": "Launch Template mbg-lt-fe",
+      "bobot": 6,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "Launch template mbg-lt-fe ada",
+          "status": "PASS",
+          "detail": "default v3 latest v3"
+        },
+        {
+          "desc": "Versi default = versi terbaru",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Instance type t3.micro",
+          "status": "PASS",
+          "detail": "t3.micro"
+        },
+        {
+          "desc": "Key pair vockey",
+          "status": "PASS",
+          "detail": "vockey"
+        },
+        {
+          "desc": "Instance profile LabInstanceProfile",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Auto-assign public IP = Disabled",
+          "status": "PASS",
+          "detail": "False"
+        },
+        {
+          "desc": "Security group = mbg-sg-fe",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Tag Name instance = mbg-ec2-fe",
+          "status": "PASS",
+          "detail": "mbg-ec2-fe"
+        },
+        {
+          "desc": "AMI = Amazon Linux 2023 / mbg-ami-fe (turunan AL2023)",
+          "status": "PASS",
+          "detail": "mbg-ami-fe"
+        },
+        {
+          "desc": "User-data me-mount EFS ke /mnt/efs/mbg-session",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "User-data menjalankan Apache/PHP saat boot",
+          "status": "PASS",
+          "detail": ""
+        }
+      ]
+    },
+    "09": {
+      "judul": "Auto Scaling Group mbg-asg-fe (subnet private, multi-AZ)",
+      "bobot": 7,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "ASG mbg-asg-fe ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Min/Desired/Max = 2/2/4",
+          "status": "PASS",
+          "detail": "2/2/4"
+        },
+        {
+          "desc": "Memakai launch template mbg-lt-fe",
+          "status": "PASS",
+          "detail": "mbg-lt-fe"
+        },
+        {
+          "desc": "Subnet ASG = mbg-subnet-private-fe-1a & 1b",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Terhubung ke Target Group mbg-tg-fe",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Health check type",
+          "status": "WARN",
+          "detail": "ELB"
+        },
+        {
+          "desc": "Instance InService >= 2",
+          "status": "PASS",
+          "detail": "2"
+        },
+        {
+          "desc": "Instance tersebar di >= 2 Availability Zone",
+          "status": "PASS",
+          "detail": "us-east-1a,us-east-1b"
+        },
+        {
+          "desc": "  i-0152972eb179b63a4: subnet private FE, tanpa IP publik, tag mbg-ec2-fe, t3.micro",
+          "status": "PASS",
+          "detail": "subnet-0fd0c4ca6cc493f2b pub=None name=mbg-ec2-fe"
+        },
+        {
+          "desc": "  i-01d8bc881dcf1e2ec: subnet private FE, tanpa IP publik, tag mbg-ec2-fe, t3.micro",
+          "status": "PASS",
+          "detail": "subnet-0d5bf105d0ddaf2dc pub=None name=mbg-ec2-fe"
+        },
+        {
+          "desc": "Scaling policy: target tracking CPU 60%",
+          "status": "PASS",
+          "detail": ""
+        }
+      ]
+    },
+    "10": {
+      "judul": "Target Group mbg-tg-fe",
+      "bobot": 5,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "Target group mbg-tg-fe ada",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Protokol HTTP:80",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Target type = instance",
+          "status": "PASS",
+          "detail": "instance"
+        },
+        {
+          "desc": "Health check path /health.php",
+          "status": "PASS",
+          "detail": "/health.php"
+        },
+        {
+          "desc": "VPC = mbg-vpc",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Seluruh target healthy (>= 2 target)",
+          "status": "PASS",
+          "detail": "['healthy', 'healthy']"
+        }
+      ]
+    },
+    "11": {
+      "judul": "Application Load Balancer mbg-alb-fe",
+      "bobot": 6,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "ALB mbg-alb-fe ada",
+          "status": "PASS",
+          "detail": "mbg-alb-fe-452456996.us-east-1.elb.amazonaws.com"
+        },
+        {
+          "desc": "Type application, internet-facing",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "State active",
+          "status": "PASS",
+          "detail": "active"
+        },
+        {
+          "desc": "Subnet = mbg-subnet-public-alb-1a & 1b (saja)",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Security group = mbg-sg-alb",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Listener HTTP:80 -> mbg-tg-fe",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "curl http://<alb-dns>/ -> HTTP 200 (halaman dashboard/login tampil)",
+          "status": "PASS",
+          "detail": "HTTP 200 /views/auth/login.php"
+        },
+        {
+          "desc": "ALB -> /health.php = 200",
+          "status": "PASS",
+          "detail": "HTTP 200"
+        }
+      ]
+    },
+    "12": {
+      "judul": "Back End berjalan & auto-migration database (via SSM)",
+      "bobot": 5,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "Apache (httpd) aktif",
+          "status": "PASS",
+          "detail": "active"
+        },
+        {
+          "desc": "BE /health: status ok & DB connected",
+          "status": "PASS",
+          "detail": "{\"status\":\"ok\",\"db\":\"connected\",\"s3\":{\"status\":\"connected\"},\"sns\":{\"status\":\"connected\"}}"
+        },
+        {
+          "desc": "BE /health: S3 connected",
+          "status": "PASS",
+          "detail": "{\"status\": \"connected\"}"
+        },
+        {
+          "desc": "BE /health: SNS connected",
+          "status": "PASS",
+          "detail": "{\"status\": \"connected\"}"
+        },
+        {
+          "desc": "SHOW TABLES mbg_db: users, sppg, laporan, aduan terbentuk",
+          "status": "PASS",
+          "detail": "aduan,laporan,sppg,users"
+        },
+        {
+          "desc": "Database BE menunjuk ke endpoint RDS (bukan localhost)",
+          "status": "PASS",
+          "detail": "mbg-rds-mysql.cjswqlp0e9y0.us-east-1.rds.amazonaws.com"
+        },
+        {
+          "desc": "AWS SDK for PHP terpasang (composer)",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Data awal (seed) sudah ada",
+          "status": "PASS",
+          "detail": "{\"success\":true,\"data\":{\"seeded\":true,\"user_count\":7},\"message\":\"OK\"}"
+        },
+        {
+          "desc": "Upload tidak jatuh ke disk lokal BE (fallback storage kosong)",
+          "status": "PASS",
+          "detail": "0"
+        }
+      ]
+    },
+    "13": {
+      "judul": "Notifikasi email SNS saat aduan/laporan baru",
+      "bobot": 6,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "Log BE: tidak ada 'SNS publish gagal'",
+          "status": "PASS",
+          "detail": "0"
+        },
+        {
+          "desc": "Log BE: tidak jatuh ke fallback log (SDK+ARN terpakai)",
+          "status": "PASS",
+          "detail": "0"
+        },
+        {
+          "desc": "CloudWatch: >= 2 pesan ter-publish ke topic (1 aduan + 1 laporan)",
+          "status": "PASS",
+          "detail": "published=2"
+        },
+        {
+          "desc": "CloudWatch: >= 2 notifikasi terkirim ke email subscriber",
+          "status": "PASS",
+          "detail": "delivered=2"
+        },
+        {
+          "desc": "Verifikasi akhir manual: cek inbox ukkce2627@smkn1bms.sch.id",
+          "status": "WARN",
+          "detail": "cari subject 'Notifikasi MBG' berisi UJI-103850"
+        }
+      ]
+    },
+    "14": {
+      "judul": "Uji ketahanan Auto Scaling (terminate 1 instance FE)",
+      "bobot": 6,
+      "skip": "dilewati (tambahkan --test-asg untuk menjalankan; DESTRUKTIF, +-5 menit)",
+      "rasio": 0.0,
+      "checks": []
+    },
+    "15": {
+      "judul": "EFS mbg-efs-fe-session & mount di instance FE",
+      "bobot": 6,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "EFS mbg-efs-fe-session ada",
+          "status": "PASS",
+          "detail": "fs-052d6a23ced742704"
+        },
+        {
+          "desc": "LifeCycleState = available",
+          "status": "PASS",
+          "detail": "available"
+        },
+        {
+          "desc": "Performance mode General Purpose",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Throughput mode Bursting",
+          "status": "PASS",
+          "detail": "bursting"
+        },
+        {
+          "desc": "Tipe file system regional (bukan One Zone)",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Lifecycle: Transition into Archive = none",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Mount target di mbg-subnet-private-fe-1a & available",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mount target mbg-subnet-private-fe-1a: SG = mbg-sg-efs",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Mount target di mbg-subnet-private-fe-1b & available",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  mount target mbg-subnet-private-fe-1b: SG = mbg-sg-efs",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "i-0152972eb179b63a4: /mnt/efs/mbg-session ter-mount (NFS/EFS)",
+          "status": "PASS",
+          "detail": "yes nfs4"
+        },
+        {
+          "desc": "i-0152972eb179b63a4: mount persisten (entri di /etc/fstab)",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "i-0152972eb179b63a4: PHP session.save_path = /mnt/efs/mbg-session",
+          "status": "PASS",
+          "detail": "/mnt/efs/mbg-session"
+        },
+        {
+          "desc": "i-0152972eb179b63a4: Apache aktif & /health.php 200",
+          "status": "PASS",
+          "detail": "active / 200"
+        },
+        {
+          "desc": "i-0152972eb179b63a4: FE -> BE memakai IP privat 10.20.10.239",
+          "status": "PASS",
+          "detail": "http://10.20.10.239/api"
+        },
+        {
+          "desc": "i-0152972eb179b63a4: akses internet keluar via NAT",
+          "status": "PASS",
+          "detail": "200"
+        },
+        {
+          "desc": "i-01d8bc881dcf1e2ec: /mnt/efs/mbg-session ter-mount (NFS/EFS)",
+          "status": "PASS",
+          "detail": "yes nfs4"
+        },
+        {
+          "desc": "i-01d8bc881dcf1e2ec: mount persisten (entri di /etc/fstab)",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "i-01d8bc881dcf1e2ec: PHP session.save_path = /mnt/efs/mbg-session",
+          "status": "PASS",
+          "detail": "/mnt/efs/mbg-session"
+        },
+        {
+          "desc": "i-01d8bc881dcf1e2ec: Apache aktif & /health.php 200",
+          "status": "PASS",
+          "detail": "active / 200"
+        },
+        {
+          "desc": "i-01d8bc881dcf1e2ec: FE -> BE memakai IP privat 10.20.10.239",
+          "status": "PASS",
+          "detail": "http://10.20.10.239/api"
+        },
+        {
+          "desc": "i-01d8bc881dcf1e2ec: akses internet keluar via NAT",
+          "status": "PASS",
+          "detail": "200"
+        }
+      ]
+    },
+    "16": {
+      "judul": "Session shared antar instance FE (bukti fungsi EFS)",
+      "bobot": 7,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "Login lewat ALB",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "30 request beruntun lewat ALB (1 cookie) semuanya tetap login",
+          "status": "PASS",
+          "detail": "30/30"
+        },
+        {
+          "desc": "ALB benar-benar melayani dari >= 2 instance FE berbeda",
+          "status": "PASS",
+          "detail": "ip-10-20-11-147.ec2.internal|10.20.11.147, ip-10-20-12-178.ec2.internal|10.20.12.178"
+        },
+        {
+          "desc": "Login di 10.20.12.178 menerbitkan session",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  file session sess_<id> ada di EFS",
+          "status": "PASS",
+          "detail": "1"
+        },
+        {
+          "desc": "  cookie sama diterima 10.20.11.147 (tidak ter-logout)",
+          "status": "PASS",
+          "detail": "200|"
+        },
+        {
+          "desc": "Login di 10.20.11.147 menerbitkan session",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "  file session sess_<id> ada di EFS",
+          "status": "PASS",
+          "detail": "1"
+        },
+        {
+          "desc": "  cookie sama diterima 10.20.12.178 (tidak ter-logout)",
+          "status": "PASS",
+          "detail": "200|"
+        }
+      ]
+    },
+    "17": {
+      "judul": "Alur aplikasi end-to-end lewat ALB (login 3 role, aduan, upload S3, tanggapan, laporan, monitoring)",
+      "bobot": 6,
+      "skip": null,
+      "rasio": 1.0,
+      "checks": [
+        {
+          "desc": "Login bgn -> dashboard bgn",
+          "status": "PASS",
+          "detail": "HTTP 200 /views/bgn/dashboard.php"
+        },
+        {
+          "desc": "Login sppg1 -> dashboard sppg",
+          "status": "PASS",
+          "detail": "HTTP 200 /views/sppg/dashboard.php"
+        },
+        {
+          "desc": "Login masy1 -> dashboard masyarakat",
+          "status": "PASS",
+          "detail": "HTTP 200 /views/masyarakat/dashboard.php"
+        },
+        {
+          "desc": "Dashboard masyarakat menampilkan statistik publik",
+          "status": "PASS",
+          "detail": "HTTP 200"
+        },
+        {
+          "desc": "Form aduan memuat daftar SPPG dari BE/RDS",
+          "status": "PASS",
+          "detail": "3 SPPG"
+        },
+        {
+          "desc": "Buat aduan + foto -> redirect ke 'Aduan Saya' & aduan tampil",
+          "status": "PASS",
+          "detail": "HTTP 200 /views/masyarakat/aduan.php"
+        },
+        {
+          "desc": "SPPG melihat aduan dari masyarakat",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "Foto aduan tersimpan di S3 & presigned URL dapat dibuka (isi file sama)",
+          "status": "PASS",
+          "detail": "70 byte"
+        },
+        {
+          "desc": "SPPG mengirim tanggapan",
+          "status": "PASS",
+          "detail": "HTTP 200"
+        },
+        {
+          "desc": "Masyarakat melihat tanggapan & status 'diproses'",
+          "status": "PASS",
+          "detail": ""
+        },
+        {
+          "desc": "SPPG membuat laporan + lampiran -> tampil di riwayat",
+          "status": "PASS",
+          "detail": "HTTP 200"
+        },
+        {
+          "desc": "Dashboard monitoring BGN",
+          "status": "PASS",
+          "detail": "HTTP 200"
+        },
+        {
+          "desc": "BGN melihat laporan uji",
+          "status": "PASS",
+          "detail": "HTTP 200"
+        },
+        {
+          "desc": "BGN melihat aduan uji",
+          "status": "PASS",
+          "detail": "HTTP 200"
+        },
+        {
+          "desc": "BGN membuka Master SPPG",
+          "status": "PASS",
+          "detail": "HTTP 200"
+        },
+        {
+          "desc": "Objek baru muncul di S3 prefix aduan/",
+          "status": "PASS",
+          "detail": "aduan/fe9ee97251434c91a1907efb7368185e.png"
+        },
+        {
+          "desc": "Objek baru muncul di S3 prefix laporan/",
+          "status": "PASS",
+          "detail": "laporan/b64562df37fa4c0cfe8e83d812e72c2a.png"
+        }
+      ]
+    }
+  }
+}

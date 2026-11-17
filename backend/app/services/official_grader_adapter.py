@@ -1,6 +1,6 @@
 """
 app/services/official_grader_adapter.py - Adapter Resmi Penilaian UKK Cloud Engineer
-SINGLE SOURCE OF TRUTH: grade.py & Soal_UKK Cloud Engineer_2627-Rev1.pdf
+SINGLE SOURCE OF TRUTH: grade.py & Soal_UKK Cloud Engineer_2627-Rev3.pdf
 """
 import os
 import sys
@@ -113,7 +113,7 @@ class OfficialGraderAdapter:
                 id=session_id,
                 participant=participant,
                 rubric_id="RUBRIC-UKK-REV1-OFFICIAL",
-                rubric_name="UKK Cloud Engineer 2026/2027 - Revisi 1 (grade.py Resmi)",
+                rubric_name="UKK Cloud Engineer 2026/2027 - Revisi 3 (grade.py Resmi)",
                 rubric_version="1.0-official",
                 examiner_name=examiner_name,
                 aws_region=creds.aws_region or "us-east-1",
@@ -199,7 +199,7 @@ class OfficialGraderAdapter:
             else:
                 severity = ErrorSeverity.INFORMATIONAL
 
-            # Susun Troubleshooting Guide ramah siswa berpedoman pada UKK Rev1
+            # Susun Troubleshooting Guide ramah siswa berpedoman pada UKK Rev3
             if is_skipped:
                 what_is_wrong = f"Aspek ini dilewati ({asp.get('skip')}). Pengujian ini opsional dan tidak mengurangi skor kelulusan."
                 actual_found = str(asp.get("skip"))
@@ -214,12 +214,12 @@ class OfficialGraderAdapter:
                 severity=severity,
                 what_is_wrong=what_is_wrong,
                 actual_found=actual_found,
-                expected_config=meta.get("expected_condition", "Konfigurasi sesuai Bab C & Bab D Dokumen Soal UKK Rev1."),
+                expected_config=meta.get("expected_condition", "Konfigurasi sesuai Bab C & Bab D Dokumen Soal UKK Rev3."),
                 why_wrong=f"Ketidaksesuaian pada {title} dapat mengganggu fungsi atau integrasi infrastruktur cloud MBG.",
                 impact="Penilaian aspek ini tidak mendapatkan nilai penuh atau fungsi aplikasi tidak dapat diverifikasi.",
-                fix_location=f"Dokumen UKK Rev1: {meta.get('doc_chapter', 'Bab C & D')} | {meta.get('doc_pages', 'Halaman terkait')}",
+                fix_location=f"Dokumen UKK Rev3: {meta.get('doc_chapter', 'Bab C & D')} | {meta.get('doc_pages', 'Halaman terkait')}",
                 how_to_fix=meta.get("troubleshooting_steps", [
-                    f"Buka panduan {meta.get('doc_name', 'Soal UKK Rev1')} bagian {meta.get('doc_chapter', '')}.",
+                    f"Buka panduan {meta.get('doc_name', 'Soal UKK Rev3')} bagian {meta.get('doc_chapter', '')}.",
                     f"Ikuti langkah pengerjaan pada {meta.get('doc_procedure', 'prosedur terkait')}.",
                     "Periksa kembali parameter penamaan, CIDR, security group, dan konfigurasi layanan."
                 ]),
@@ -250,7 +250,7 @@ class OfficialGraderAdapter:
             id=session_id,
             participant=participant,
             rubric_id="RUBRIC-UKK-REV1-OFFICIAL",
-            rubric_name="UKK Cloud Engineer 2026/2027 - Revisi 1 (Single Source of Truth: grade.py)",
+            rubric_name="UKK Cloud Engineer 2026/2027 - Revisi 3 (Single Source of Truth: grade.py)",
             rubric_version="1.0-official",
             examiner_name=examiner_name,
             aws_account_id=account_id,
@@ -265,7 +265,7 @@ class OfficialGraderAdapter:
             warning_count=warning_count,
             completion_percentage=100.0,
             results=results,
-            notes=f"Penilaian resmi via grade.py selesai dalam {duration}s. Single source of truth grade.py & Soal_UKK Cloud Engineer_2627-Rev1.pdf.",
+            notes=f"Penilaian resmi via grade.py selesai dalam {duration}s. Single source of truth grade.py & Soal_UKK Cloud Engineer_2627-Rev3.pdf.",
             started_at=started_at,
             completed_at=datetime.utcnow().isoformat(),
             duration_seconds=duration

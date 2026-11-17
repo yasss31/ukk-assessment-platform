@@ -200,6 +200,19 @@ export const AssessmentDetail: React.FC<Props> = ({ sessionId, onBack }) => {
         </div>
       )}
 
+      {/* Alert Banner if Assessment Failed or Has System Error */}
+      {session.status === 'FAILED' && (
+        <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex items-start space-x-3 text-xs text-rose-300">
+          <AlertTriangle size={18} className="text-rose-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <div className="font-bold text-rose-200">Evaluasi Grader Mengalami Kegagalan</div>
+            <p className="text-slate-300">
+              {session.notes || 'Terjadi kesalahan sistem saat mengeksekusi penilaian otomatis.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Main Score & Summary Card */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
         {/* Score Ring */}

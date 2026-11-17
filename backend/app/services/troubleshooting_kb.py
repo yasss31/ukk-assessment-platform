@@ -55,8 +55,8 @@ class TroubleshootingKB:
             "fix_location": "AWS Console -> VPC -> Subnets",
             "how_to_fix": [
                 "Buka VPC -> Subnets.",
-                "Buat Subnet 'mbg-subnet-private-fe-1a' (CIDR: 10.20.10.0/24) di AZ us-east-1a.",
-                "Buat Subnet 'mbg-subnet-private-fe-1b' (CIDR: 10.20.11.0/24) di AZ us-east-1b.",
+                "Buat Subnet 'mbg-subnet-private-fe-1a' (CIDR: 10.20.11.0/24) di AZ us-east-1a.",
+                "Buat Subnet 'mbg-subnet-private-fe-1b' (CIDR: 10.20.12.0/24) di AZ us-east-1b.",
                 "Pastikan opsi 'Enable auto-assign public IPv4 address' TIDAK dicentang (harus bernilai False)."
             ],
             "how_to_verify": [
@@ -219,8 +219,8 @@ class TroubleshootingKB:
         },
         "08.01": {
             "severity": ErrorSeverity.CRITICAL,
-            "what_is_wrong": "Launch Template 'mbg-lt-fe' tidak menggunakan Custom AMI buatan sendiri ('mbg-ami-fe') sesuai Soal Revisi 1.",
-            "why_wrong": "Soal UKK Revisi 1 mewajibkan pembuatan Custom AMI dari EC2 frontend sementara (mbg-ec2-fe-temp) agar autoscaling cepat.",
+            "what_is_wrong": "Launch Template 'mbg-lt-fe' tidak menggunakan Custom AMI buatan sendiri ('mbg-ami-fe') sesuai Soal Revisi 3.",
+            "why_wrong": "Soal UKK Revisi 3 mewajibkan pembuatan Custom AMI dari EC2 frontend sementara (mbg-ec2-fe-temp) agar autoscaling cepat.",
             "impact": "ASG akan meluncurkan instance kosong tanpa aplikasi, sehingga website error HTTP 502/404.",
             "fix_location": "AWS Console -> EC2 -> Launch Templates",
             "how_to_fix": [
@@ -288,7 +288,7 @@ class TroubleshootingKB:
             "what_is_wrong": "Uji ketahanan Auto Scaling (terminate 1 instance FE) dilewati (opsional).",
             "why_wrong": "Pengujian ini bersifat destruktif (+- 5 menit) dan dilewati secara default oleh grader resmi.",
             "impact": "Tidak mempengaruhi nilai kelulusan jika dilewati (SKIP).",
-            "fix_location": "Dokumen UKK Rev1: Bab D.9 | Halaman 7",
+            "fix_location": "Dokumen UKK Rev3: Bab D.9 | Halaman 7-8",
             "how_to_fix": [
                 "Pengujian ini opsional. Jika ingin menguji terminate instance secara manual:",
                 "Buka EC2 -> Auto Scaling groups -> 'mbg-asg-fe' -> tab Instance management.",

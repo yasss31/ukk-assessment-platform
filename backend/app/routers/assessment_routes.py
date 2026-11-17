@@ -9,7 +9,7 @@ from app.auth import get_current_user
 from app.models.schemas import (
     User, AWSCredentialInput, AWSCredentialValidationResult,
     AssessmentCreate, AssessmentSession, AssessmentStatus, RubricProfile,
-    IndicatorResult, ReassessmentRequest
+    IndicatorResult, ReassessmentRequest, Participant
 )
 from app.database.storage import storage
 from app.services.aws_validator import AWSValidator

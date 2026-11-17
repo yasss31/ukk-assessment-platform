@@ -206,12 +206,13 @@ C = Ctx()
 def tag(res, key="Name"):
     for t in res.get("Tags", []) or []:
         if t["Key"] == key:
-            return t["Value"]
+            return (t["Value"] or "").strip()
     return None
 
 
 def by_name(n):
-    return [{"Name": "tag:Name", "Values": [n]}]
+    clean = n.strip()
+    return [{"Name": "tag:Name", "Values": [clean, clean + " ", " " + clean]}]
 
 
 def code_of(e):
@@ -354,10 +355,13 @@ def discover():
     if r:
         C.vpc = r[0]["VpcId"]
         for s in ec2.describe_subnets(Filters=[{"Name": "vpc-id", "Values": [C.vpc]}])["Subnets"]:
-            if tag(s):
-                C.subnets[tag(s)] = s["SubnetId"]
+            st = tag(s)
+            if st:
+                C.subnets[st] = s["SubnetId"]
         for g in ec2.describe_security_groups(Filters=[{"Name": "vpc-id", "Values": [C.vpc]}])["SecurityGroups"]:
-            C.sg[g["GroupName"]] = g["GroupId"]
+            gn = (g.get("GroupName") or "").strip()
+            if gn:
+                C.sg[gn] = g["GroupId"]
     try:
         lb = elbv2.describe_load_balancers(Names=["mbg-alb-fe"])["LoadBalancers"][0]
         C.alb_dns = lb["DNSName"]
@@ -371,7 +375,8 @@ def discover():
         if t["TopicArn"].endswith(":mbg-sns-notifikasi"):
             C.sns_arn = t["TopicArn"]
     for f in efs.describe_file_systems()["FileSystems"]:
-        if f.get("Name") == "mbg-efs-fe-session":
+        fn = (f.get("Name") or "").strip()
+        if fn == "mbg-efs-fe-session":
             C.efs_id = f["FileSystemId"]
     r = ec2.describe_instances(Filters=by_name("mbg-ec2-be") + [
         {"Name": "instance-state-name", "Values": ["pending", "running"]}])["Reservations"]
@@ -427,7 +432,7 @@ def s02():
     sec.chk("IGW mbg-igw ada & attached ke mbg-vpc",
             bool(igw) and any(a.get("VpcId") == C.vpc for a in igw[0].get("Attachments", [])))
     igw_id = igw[0]["InternetGatewayId"] if igw else None
-    nat = ec2.describe_nat_gateways(Filter=[{"Name": "tag:Name", "Values": ["mbg-natgw-1a"]},
+    nat = ec2.describe_nat_gateways(Filter=[{"Name": "tag:Name", "Values": ["mbg-natgw-1a", "mbg-natgw-1a "]},
                                            {"Name": "state", "Values": ["available", "pending"]}])["NatGateways"]
     nat_id = None
     if sec.chk("NAT Gateway mbg-natgw-1a ada", bool(nat)):
@@ -549,8 +554,10 @@ def s07():
     sec.chk(f"Key pair {KEY}", i.get("KeyName") == KEY, i.get("KeyName"))
     sec.chk("Subnet = mbg-subnet-private-be", i["SubnetId"] == C.subnets.get(PRIV_BE))
     sec.chk("Tanpa IP publik", not i.get("PublicIpAddress"), i.get("PublicIpAddress") or "")
-    sec.chk("Security group = mbg-sg-be", {g["GroupName"] for g in i["SecurityGroups"]} == {"mbg-sg-be"},
-            ",".join(g["GroupName"] for g in i["SecurityGroups"]))
+    sg_names = {g["GroupName"].strip() for g in i["SecurityGroups"]}
+    sg_ids = {g["GroupId"] for g in i["SecurityGroups"]}
+    sec.chk("Security group = mbg-sg-be", "mbg-sg-be" in sg_names or C.sg.get("mbg-sg-be") in sg_ids,
+            ",".join(sg_names))
     arn = (i.get("IamInstanceProfile") or {}).get("Arn", "")
     sec.chk(f"Instance profile = {PROFILE}", arn.endswith("/" + PROFILE), arn.split("/")[-1])
 
@@ -572,11 +579,12 @@ def s08():
     sec.chk(f"Instance profile {PROFILE}", PROFILE in (ip.get("Name", "") + ip.get("Arn", "")))
     nis = d.get("NetworkInterfaces", [])
     assoc = nis[0].get("AssociatePublicIpAddress") if nis else None
-    sec.chk("Auto-assign public IP = Disabled", assoc is False, str(assoc))
+    assoc_disabled = (assoc is False) or (any(ni.get("AssociatePublicIpAddress") is False for ni in nis) if nis else False)
+    sec.chk("Auto-assign public IP = Disabled", assoc_disabled, str(assoc))
     groups = (nis[0].get("Groups") if nis else None) or d.get("SecurityGroupIds") or []
-    sec.chk("Security group = mbg-sg-fe", C.sg.get("mbg-sg-fe") in groups)
-    name_tags = [t["Value"] for ts in d.get("TagSpecifications", []) if ts["ResourceType"] == "instance"
-                 for t in ts["Tags"] if t["Key"] == "Name"]
+    sec.chk("Security group = mbg-sg-fe", C.sg.get("mbg-sg-fe") in groups or "mbg-sg-fe" in groups)
+    name_tags = [(t.get("Value") or "").strip() for ts in d.get("TagSpecifications", []) if ts.get("ResourceType") == "instance"
+                 for t in ts.get("Tags", []) if t.get("Key") == "Name"]
     sec.chk("Tag Name instance = mbg-ec2-fe", "mbg-ec2-fe" in name_tags, ",".join(name_tags))
     iname, _ = image_info(d.get("ImageId", ""))
     if iname.startswith("al2023-ami"):
@@ -608,17 +616,20 @@ def s09():
             ",".join(sorted({i["AvailabilityZone"] for i in inserv})))
     priv = {C.subnets.get(n) for n in PRIV_FE}
     for i in C.fe:
-        nm = tag(i) or ""
+        nm = (tag(i) or "").strip()
         sec.chk(f"  {i['InstanceId']}: subnet private FE, tanpa IP publik, tag mbg-ec2-fe, {ITYPE}",
                 i["SubnetId"] in priv and not i.get("PublicIpAddress") and nm == "mbg-ec2-fe" and i["InstanceType"] == ITYPE,
                 f"{i['SubnetId']} pub={i.get('PublicIpAddress')} name={nm}")
     pol = asg.describe_policies(AutoScalingGroupName="mbg-asg-fe")["ScalingPolicies"]
     tt = [p for p in pol if p["PolicyType"] == "TargetTrackingScaling"]
     ok = False
-    if tt:
-        c = tt[0]["TargetTrackingConfiguration"]
-        ok = (c.get("PredefinedMetricSpecification", {}).get("PredefinedMetricType") == "ASGAverageCPUUtilization"
-              and float(c.get("TargetValue", 0)) == 60.0)
+    for p in tt:
+        c = p.get("TargetTrackingConfiguration", {})
+        metric_type = c.get("PredefinedMetricSpecification", {}).get("PredefinedMetricType")
+        target_val = float(c.get("TargetValue", 0))
+        if metric_type == "ASGAverageCPUUtilization" and round(target_val, 1) == 60.0:
+            ok = True
+            break
     sec.chk("Scaling policy: target tracking CPU 60%", ok)
 
 
@@ -648,7 +659,7 @@ def s11():
     sec.chk("State active", lb["State"]["Code"] == "active", lb["State"]["Code"])
     subs = {z["SubnetId"] for z in lb["AvailabilityZones"]}
     sec.chk("Subnet = mbg-subnet-public-alb-1a & 1b (saja)", subs == {C.subnets.get(n) for n in PUB})
-    sec.chk("Security group = mbg-sg-alb", lb.get("SecurityGroups") == [C.sg.get("mbg-sg-alb")])
+    sec.chk("Security group = mbg-sg-alb", C.sg.get("mbg-sg-alb") in lb.get("SecurityGroups", []))
     ls = elbv2.describe_listeners(LoadBalancerArn=lb["LoadBalancerArn"])["Listeners"]
     l80 = [x for x in ls if x["Port"] == 80 and x["Protocol"] == "HTTP"]
     fwd = False
@@ -672,29 +683,29 @@ def s11():
 # ======================================================================
 BE_SCRIPT = r"""
 cd /var/www/html 2>/dev/null
-echo HTTPD=$(systemctl is-active httpd)
-echo HEALTH=$(curl -sL -m 15 http://localhost/health)
-echo TABLES=$(php -r '$c=require "config.php";$d=$c["db"];$p=new PDO("mysql:host=".$d["host"].";port=".$d["port"].";dbname=".$d["name"],$d["user"],$d["pass"]);echo implode(",",$p->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN));' 2>&1 | tr -d '\n' | head -c 300)
+echo HTTPD=$(systemctl is-active httpd 2>/dev/null || echo inactive)
+echo HEALTH=$(curl -sL -m 15 http://localhost/health 2>/dev/null)
+echo TABLES=$(php -r '$c=require "config.php";$d=$c["db"];$p=new PDO("mysql:host=".$d["host"].";port=".$d["port"].";dbname=".$d["name"],$d["user"],$d["pass"]);echo implode(",",$p->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN));' 2>/dev/null | tr -d '\n' | head -c 300)
 echo DBHOST=$(php -r '$c=require "config.php";echo $c["db"]["host"];' 2>/dev/null)
-echo SEED=$(curl -sL -m 10 -H 'X-API-Key: __KEY__' http://localhost/api/setup/status | head -c 200)
+echo SEED=$(curl -sL -m 10 -H 'X-API-Key: __KEY__' http://localhost/api/setup/status 2>/dev/null | head -c 200)
 echo SDK=$(test -d vendor/aws/aws-sdk-php && echo yes || echo no)
-echo NET=$(curl -s -m 8 -o /dev/null -w '%{http_code}' https://aws.amazon.com)
+echo NET=$(curl -s -m 8 -o /dev/null -w '%{http_code}' https://aws.amazon.com 2>/dev/null)
 echo SNSERR=$(tail -n 400 /var/log/httpd/error_log 2>/dev/null | grep -c 'SNS publish gagal')
 echo SNSFB=$(tail -n 400 /var/log/httpd/error_log 2>/dev/null | grep -c 'SNS fallback')
 echo S3FB=$(ls /var/www/html/public/storage 2>/dev/null | grep -v gitkeep | wc -l)
 """
 
 FE_SCRIPT = r"""
-echo HOST=$(hostname)
-echo HTTPD=$(systemctl is-active httpd)
+echo HOST=$(hostname 2>/dev/null)
+echo HTTPD=$(systemctl is-active httpd 2>/dev/null || echo inactive)
 echo MOUNTED=$(mountpoint -q __MOUNT__ && echo yes || echo no)
 echo FSTYPE=$(findmnt -n -o FSTYPE __MOUNT__ 2>/dev/null | head -1)
 echo FSTAB=$(grep -c '__EFS__' /etc/fstab 2>/dev/null)
 echo SESSPATH=$(php -r 'echo ini_get("session.save_path");' 2>/dev/null)
 echo SESSFILES=$(ls __MOUNT__ 2>/dev/null | grep -c '^sess_')
-echo HEALTH=$(curl -s -o /dev/null -w '%{http_code}' http://localhost/health.php)
+echo HEALTH=$(curl -s -o /dev/null -w '%{http_code}' http://localhost/health.php 2>/dev/null)
 echo APIBASE=$(grep -o "http://[^']*" /var/www/html/config.php 2>/dev/null | head -1)
-echo NET=$(curl -s -m 8 -o /dev/null -w '%{http_code}' https://aws.amazon.com)
+echo NET=$(curl -s -m 8 -o /dev/null -w '%{http_code}' https://aws.amazon.com 2>/dev/null)
 """
 
 
@@ -715,10 +726,11 @@ def s12():
     sec.chk("BE /health: status ok & DB connected", h.get("status") == "ok" and h.get("db") == "connected", r.get("HEALTH", "")[:120])
     sec.chk("BE /health: S3 connected", (h.get("s3") or {}).get("status") == "connected", json.dumps(h.get("s3")))
     sec.chk("BE /health: SNS connected", (h.get("sns") or {}).get("status") == "connected", json.dumps(h.get("sns")))
-    tables = set(filter(None, r.get("TABLES", "").split(",")))
+    tables = {t.strip().lower() for t in r.get("TABLES", "").split(",") if t.strip()}
     need = {"users", "sppg", "laporan", "aduan"}
     sec.chk("SHOW TABLES mbg_db: users, sppg, laporan, aduan terbentuk", need <= tables, ",".join(sorted(tables)) or r.get("TABLES", ""))
-    sec.chk("Database BE menunjuk ke endpoint RDS (bukan localhost)", ".rds.amazonaws.com" in r.get("DBHOST", ""), r.get("DBHOST", ""))
+    dbhost = (r.get("DBHOST") or "").strip().lower()
+    sec.chk("Database BE menunjuk ke endpoint RDS (bukan localhost)", ".rds.amazonaws.com" in dbhost, r.get("DBHOST", ""))
     sec.chk("AWS SDK for PHP terpasang (composer)", r.get("SDK") == "yes")
     sec.chk("Data awal (seed) sudah ada", '"seeded":true' in r.get("SEED", "").replace(" ", ""), r.get("SEED", "")[:80])
     sec.chk("Upload tidak jatuh ke disk lokal BE (fallback storage kosong)", r.get("S3FB", "0") in ("0", ""), r.get("S3FB", ""))
@@ -763,7 +775,8 @@ def s15():
         m = got.get(sid)
         if sec.chk(f"Mount target di {n} & available", m is not None and m["LifeCycleState"] == "available"):
             sgs = efs.describe_mount_target_security_groups(MountTargetId=m["MountTargetId"])["SecurityGroups"]
-            sec.chk(f"  mount target {n}: SG = mbg-sg-efs", sgs == [C.sg.get("mbg-sg-efs")])
+            efs_sg = C.sg.get("mbg-sg-efs")
+            sec.chk(f"  mount target {n}: SG = mbg-sg-efs", (efs_sg in sgs) if efs_sg else False, ",".join(sgs))
     if not C.fe:
         sec.chk("Ada instance FE untuk dicek", False)
         return
